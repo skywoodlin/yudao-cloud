@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.iocoder.yudao.module.system.dal.mysql.parkingpayunion.ParkingPayUnionMapper">
+    <sql id="getProfitSharingInfoSumCondition">
+        <if test="sourceId != null">
+            , dataSources.name as sourceName
+        </if>
+        <if test="channelId != null">
+            , channel.channel_name as channelName
+        </if>
+        from t_profit_sharing_sum as psum
+        <if test="sourceId != null">
+            left join t_data_sources as dataSources on psum.source_id = dataSources.id
+        </if>
+        <if test="channelId != null">
+            left join t_channel as channel on psum.channel_id = channel.id
+        </if>
+        <where>
+            <if test="sourceId != null">
+                and source_id = #{sourceId}
+            </if>
+            <if test="channelId != null">
+                and channel_id = #{channelId}
+            </if>
+        </where>
+    </sql>
+    
+    
+    <select id="getDataSourceByAppid" parameterType="java.lang.String"
+            resultType="cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.DataSources">
+        select *
+        from t_data_sources
+        where appid = #{appid}
+    </select>
+
+<!--    <select id="getProfitSharingInfo" parameterType="java.util.Map"-->
+<!--            resultType="">-->
+<!--        select *-->
+<!--        from t_profit_sharing_info-->
+<!--        where appid = #{appid}-->
+<!--    </select>-->
+
+    <select id="getProfitSharingInfoSum" parameterType="java.util.Map"
+            resultType="cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoSumRespVO">
+        select psum.*
+        <include refid="getProfitSharingInfoSumCondition"></include>
+        order by date_range desc
+        limit #{pageStart}, #{pageSize}
+    </select>
+
+    <select id="getProfitSharingInfoSumTotalCounts" parameterType="java.util.Map"
+            resultType="java.lang.Long">
+        select count(*)
+        <include refid="getProfitSharingInfoSumCondition"></include>
+    </select>
+</mapper>

@@ -93,4 +93,10 @@ public class AdminUserDO extends TenantBaseDO {
      */
     private LocalDateTime loginDate;
 
+    private Integer appid;
+
+    private String secret;
+
+    private Integer sourceId;
+
 }

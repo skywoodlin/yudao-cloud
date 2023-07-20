@@ -46,6 +46,7 @@ knife4j:
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true # 虽然默认为 true ，但是还是显示去指定下。
+  mapper-locations: classpath*:mapper/**/*Mapper.xml
   global-config:
     db-config:
       # 重要说明：如果将配置放到 Nacos 时，请注意将 id-type 设置为对应 DB 的类型，否则会报错；详细见 https://gitee.com/zhijiantianya/yudao-cloud/issues/I5W2N0 讨论
@@ -146,12 +147,13 @@ yudao:
     version: ${yudao.info.version}
     base-package: ${yudao.info.base-package}
   captcha:
-    enable: true # 验证码的开关，默认为 true；
+    enable: false # 验证码的开关，默认为 true；
   error-code: # 错误码相关配置项
     constants-class-list:
       - cn.iocoder.yudao.module.system.enums.ErrorCodeConstants
   tenant: # 多租户相关配置项
-    enable: true
+    enable: false
+#    enable: true
     ignore-urls:
       - /admin-api/system/tenant/get-id-by-name # 基于名字获取租户，不许带租户编号
       - /admin-api/system/captcha/get-image # 获取图片验证码，和租户无关

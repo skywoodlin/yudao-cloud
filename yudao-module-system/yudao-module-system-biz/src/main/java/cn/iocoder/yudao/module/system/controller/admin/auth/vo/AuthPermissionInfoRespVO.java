@@ -41,6 +41,15 @@ public class AuthPermissionInfoRespVO {
         @Schema(description = "用户头像", required = true, example = "http://www.iocoder.cn/xx.jpg")
         private String avatar;
 
+        @Schema(description = "appid", required = false, example = "12345333336")
+        private Integer appid;
+
+        @Schema(description = "secret", required = false, example = "asdfasfewrq")
+        private String secret;
+
+        @Schema(description = "sourceId", required = false, example = "1111")
+        private Integer sourceId;
+
     }
 
 }

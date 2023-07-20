@@ -14,6 +14,7 @@ import cn.iocoder.yudao.module.system.dal.dataobject.user.AdminUserDO;
 import cn.iocoder.yudao.module.system.enums.logger.LoginLogTypeEnum;
 import cn.iocoder.yudao.module.system.enums.permission.MenuTypeEnum;
 import cn.iocoder.yudao.module.system.service.auth.AdminAuthService;
+import cn.iocoder.yudao.module.system.service.parkingpayunion.ParkingPayUnionService;
 import cn.iocoder.yudao.module.system.service.permission.PermissionService;
 import cn.iocoder.yudao.module.system.service.permission.RoleService;
 import cn.iocoder.yudao.module.system.service.social.SocialUserService;
@@ -57,6 +58,9 @@ public class AuthController {
     private SocialUserService socialUserService;
 
     @Resource
+    private ParkingPayUnionService parkingPayUnionService;
+
+    @Resource
     private SecurityProperties securityProperties;
 
     @PostMapping("/login")
@@ -96,6 +100,11 @@ public class AuthController {
         if (user == null) {
             return null;
         }
+
+//        // 如果是追缴中台， 获取其sourceId
+//        Integer sourceId = parkingPayUnionService.getSourceIdByAppid(user.getAppid());
+//        user.setSourceId(sourceId);
+
         // 获得角色列表
         Set<Long> roleIds = permissionService.getUserRoleIdsFromCache(getLoginUserId(), singleton(CommonStatusEnum.ENABLE.getStatus()));
         List<RoleDO> roleList = roleService.getRoleListFromCache(roleIds);

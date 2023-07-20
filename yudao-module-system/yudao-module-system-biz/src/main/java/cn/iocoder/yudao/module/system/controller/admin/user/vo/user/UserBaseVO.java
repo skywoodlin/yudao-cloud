@@ -51,4 +51,13 @@ public class UserBaseVO {
     @Schema(description = "用户头像", example = "https://www.iocoder.cn/xxx.png")
     private String avatar;
 
+    @Schema(description = "appid", example = "11111")
+    private Integer appid;
+
+    @Schema(description = "secret", example = "asdfasdferaadsf")
+    private String secret;
+
+    @Schema(description = "sourceId", example = "111111")
+    private Integer sourceId;
+
 }

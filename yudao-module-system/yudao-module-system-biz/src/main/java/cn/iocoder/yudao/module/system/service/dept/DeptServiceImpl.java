@@ -10,6 +10,7 @@ import cn.iocoder.yudao.module.system.controller.admin.dept.vo.dept.DeptUpdateRe
 import cn.iocoder.yudao.module.system.convert.dept.DeptConvert;
 import cn.iocoder.yudao.module.system.dal.dataobject.dept.DeptDO;
 import cn.iocoder.yudao.module.system.dal.mysql.dept.DeptMapper;
+import cn.iocoder.yudao.module.system.dal.mysql.parkingpayunion.ParkingPayUnionMapper;
 import cn.iocoder.yudao.module.system.enums.dept.DeptIdEnum;
 import cn.iocoder.yudao.module.system.mq.producer.dept.DeptProducer;
 import com.google.common.collect.ImmutableMap;
@@ -57,6 +58,9 @@ public class DeptServiceImpl implements DeptService {
 
     @Resource
     private DeptMapper deptMapper;
+
+    @Resource
+    private ParkingPayUnionMapper parkingPayUnionMapper;
 
     @Resource
     private DeptProducer deptProducer;

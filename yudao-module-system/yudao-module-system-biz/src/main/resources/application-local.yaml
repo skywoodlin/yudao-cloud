@@ -39,25 +39,28 @@ spring:
       primary: master
       datasource:
         master:
-          name: ruoyi-vue-pro
+#          name: ruoyi-vue-pro
+          name: parking_pay_union
           url: jdbc:mysql://127.0.0.1:3306/${spring.datasource.dynamic.datasource.master.name}?allowMultiQueries=true&useUnicode=true&useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&autoReconnect=true&nullCatalogMeansCurrent=true # MySQL Connector/J 8.X 连接的示例
 #          url: jdbc:mysql://127.0.0.1:3306/${spring.datasource.dynamic.datasource.master.name}?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=CTT # MySQL Connector/J 5.X 连接的示例
 #          url: jdbc:postgresql://127.0.0.1:5432/${spring.datasource.dynamic.datasource.slave.name} # PostgreSQL 连接的示例
 #          url: jdbc:oracle:thin:@127.0.0.1:1521:xe # Oracle 连接的示例
 #          url: jdbc:sqlserver://127.0.0.1:1433;DatabaseName=${spring.datasource.dynamic.datasource.master.name} # SQLServer 连接的示例
           username: root
-          password: 123456
+#           password: 123456
+          password: root
 #          username: sa
 #          password: JSm:g(*%lU4ZAkz06cd52KqT3)i1?H7W
         slave: # 模拟从库，可根据自己需要修改
-          name: ruoyi-vue-pro
+          name: parking_pay_union
           url: jdbc:mysql://127.0.0.1:3306/${spring.datasource.dynamic.datasource.slave.name}?allowMultiQueries=true&useUnicode=true&useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&autoReconnect=true&nullCatalogMeansCurrent=true # MySQL Connector/J 8.X 连接的示例
 #          url: jdbc:mysql://127.0.0.1:3306/${spring.datasource.dynamic.datasource.slave.name}?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=CTT # MySQL Connector/J 5.X 连接的示例
 #          url: jdbc:postgresql://127.0.0.1:5432/${spring.datasource.dynamic.datasource.slave.name} # PostgreSQL 连接的示例
 #          url: jdbc:oracle:thin:@127.0.0.1:1521:xe # Oracle 连接的示例
 #          url: jdbc:sqlserver://127.0.0.1:1433;DatabaseName=${spring.datasource.dynamic.datasource.slave.name} # SQLServer 连接的示例
           username: root
-          password: 123456
+#          password: 123456
+          password: root
 #          username: sa
 #          password: JSm:g(*%lU4ZAkz06cd52KqT3)i1?H7W
 
@@ -65,7 +68,8 @@ spring:
   redis:
     host: 127.0.0.1 # 地址
     port: 6379 # 端口
-    database: 0 # 数据库索引
+#    database: 0 # 数据库索引
+    database: 10 # 数据库索引
 #    password: 123456 # 密码，建议生产环境开启
 
 --- #################### MQ 消息队列相关配置 ####################
@@ -159,12 +163,14 @@ justauth:
   enabled: true
   type:
     DINGTALK: # 钉钉
-      client-id: dingvrnreaje3yqvzhxg
-      client-secret: i8E6iZyDvZj51JIb0tYsYfVQYOks9Cq1lgryEjFRqC79P3iJcrxEwT6Qk2QvLrLI
+      client-id: dingn27brqsgmpgnsjwp
+      client-secret: ZruF75UWbMAqQHBPWk4skwLAE648Sk2sU62djuBYglzArQwCKQJlTiy_XPOBrDOS
       ignore-check-redirect-uri: true
     WECHAT_ENTERPRISE: # 企业微信
-      client-id: wwd411c69a39ad2e54
-      client-secret: 1wTb7hYxnpT2TUbIeHGXGo7T0odav1ic10mLdyyATOw
+#      client-id: wwd411c69a39ad2e54
+      client-id: aabbccdddddddd
+#      client-secret: 1wTb7hYxnpT2TUbIeHGXGo7T0odav1ic10mLdyyATOw
+      client-secret: aabbccddddddddddddddddddddddddddddd
       agent-id: 1000004
       ignore-check-redirect-uri: true
   cache:
