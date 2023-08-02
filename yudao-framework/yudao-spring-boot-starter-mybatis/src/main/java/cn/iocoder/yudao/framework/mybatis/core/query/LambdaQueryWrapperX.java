@@ -46,6 +46,15 @@ public class LambdaQueryWrapperX<T> extends LambdaQueryWrapper<T> {
         return this;
     }
 
+    // add by skywoodlin
+    public LambdaQueryWrapperX<T> eqIfNotBlank(SFunction<T, ?> column, String val) {
+        if (StringUtils.hasText(val)) {
+            return (LambdaQueryWrapperX<T>) super.eq(column, val);
+        }
+        return this;
+    }
+
+
     public LambdaQueryWrapperX<T> neIfPresent(SFunction<T, ?> column, Object val) {
         if (val != null) {
             return (LambdaQueryWrapperX<T>) super.ne(column, val);
@@ -131,5 +140,7 @@ public class LambdaQueryWrapperX<T> extends LambdaQueryWrapper<T> {
         super.in(column, coll);
         return this;
     }
+
+
 
 }

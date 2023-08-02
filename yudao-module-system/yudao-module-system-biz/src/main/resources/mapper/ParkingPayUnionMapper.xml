@@ -53,4 +53,17 @@
         select count(*)
         <include refid="getProfitSharingInfoSumCondition"></include>
     </select>
+
+    <select id="getPhotoListByOwerecId" parameterType="java.lang.Integer" resultType="java.lang.String">
+        select location
+        from t_parking_photo
+        where owerec_id = #{owerecId}
+    </select>
+
+    <select id="getDataSourceNameById" parameterType="java.lang.Integer"
+            resultType="java.lang.String">
+        select name
+        from t_data_sources
+        where id = #{dataSourceId}
+    </select>
 </mapper>

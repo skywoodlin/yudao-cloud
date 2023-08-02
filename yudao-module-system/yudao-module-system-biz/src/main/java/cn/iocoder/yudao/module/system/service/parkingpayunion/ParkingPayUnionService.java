@@ -5,10 +5,13 @@ import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetPro
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoSumReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoSumRespVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListOwerecReqVO;
+import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListOwerecVo;
+import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListProfitSharingInfoVo;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.DataSources;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.Owerec;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.ProfitSharingInfo;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 /**
@@ -20,12 +23,12 @@ import java.util.List;
  */
 public interface ParkingPayUnionService{
 
-    PageResult<Owerec> listOwerec(ListOwerecReqVO reqVO);
+    PageResult<ListOwerecVo> listOwerec(ListOwerecReqVO reqVO) throws InvocationTargetException, IllegalAccessException;
 
 
     Integer getSourceIdByAppid(Integer appid);
 
-    PageResult<ProfitSharingInfo> getProfitSharingInfoPage(GetProfitSharingInfoReqVO reqVO);
+    PageResult<ListProfitSharingInfoVo> getProfitSharingInfoPage(GetProfitSharingInfoReqVO reqVO);
 
     List<DataSources> getDataSources();
 

@@ -6,6 +6,8 @@ import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetPro
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoSumReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoSumRespVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListOwerecReqVO;
+import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListOwerecVo;
+import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListProfitSharingInfoVo;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.DataSources;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.Owerec;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.ProfitSharingInfo;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.annotation.security.PermitAll;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Comparator;
 import java.util.List;
 
@@ -47,16 +50,16 @@ public class ParkingPayUnionController{
     @Operation(summary = "获取欠费信息list Page")
     // todo 这里本来要设置权限， 先不设
     @PermitAll
-    public CommonResult<PageResult<Owerec>> listOwerecPage(ListOwerecReqVO reqVO) {
+    public CommonResult<PageResult<ListOwerecVo>> listOwerecPage(ListOwerecReqVO reqVO) throws InvocationTargetException, IllegalAccessException{
         return success(parkingPayUnionService.listOwerec(reqVO));
     }
 
 
     @GetMapping("/getProfitSharingInfoPage")
-    @Operation(summary = "获取欠费信息list Page")
+    @Operation(summary = "获取分润明细list Page")
     // todo 这里本来要设置权限， 先不设
     @PermitAll
-    public CommonResult<PageResult<ProfitSharingInfo>> getProfitSharingInfoPage(GetProfitSharingInfoReqVO reqVO) {
+    public CommonResult<PageResult<ListProfitSharingInfoVo>> getProfitSharingInfoPage(GetProfitSharingInfoReqVO reqVO) {
         return success(parkingPayUnionService.getProfitSharingInfoPage(reqVO));
     }
 

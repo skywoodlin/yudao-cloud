@@ -18,8 +18,8 @@ public interface OwerecMapper extends BaseMapperX<Owerec> {
         return selectPage(reqVO, new LambdaQueryWrapperX<Owerec>()
                 .eqIfPresent(Owerec::getSourceId, reqVO.getSourceId())
                 .eqIfPresent(Owerec::getStatus, reqVO.getStatus())
-                .eqIfPresent(Owerec::getPlateNum, reqVO.getPlateNum())
-                .eqIfPresent(Owerec::getThirdpartyOrderId, reqVO.getThirdpartyOrderId())
+                .likeIfPresent(Owerec::getPlateNum, reqVO.getPlateNum())
+                .eqIfNotBlank(Owerec::getThirdpartyOrderId, reqVO.getThirdpartyOrderId())
                 .betweenIfPresent(Owerec::getCreateTime, reqVO.getCreateTime())
                 .betweenIfPresent(Owerec::getRetrieveTime, reqVO.getRetrieveTime())
                 .orderByDesc(Owerec::getId));

@@ -19,12 +19,23 @@ public interface ParkingPayUnionMapper {
     /**
      * 根据appid获取datasources
      */
-    DataSources getDataSourceByAppid(String appid);
+    DataSources getDataSourceByAppid(Integer appid);
 
 
     List<GetProfitSharingInfoSumRespVO> getProfitSharingInfoSum(Map<String, Object> paramMap);
 
 
     Long getProfitSharingInfoSumTotalCounts(Map<String, Object> paramMap);
+
+
+    /**
+     * 接口： 从owerecId获取图片list
+     * @param owerecId
+     * @return
+     */
+    List<String> getPhotoListByOwerecId(Integer owerecId);
+
+
+    String getDataSourceNameById(Integer dataSourceId);
 
 }
