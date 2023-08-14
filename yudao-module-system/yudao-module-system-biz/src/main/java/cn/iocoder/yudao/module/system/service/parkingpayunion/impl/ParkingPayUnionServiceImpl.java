@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,11 +67,19 @@ public class ParkingPayUnionServiceImpl implements ParkingPayUnionService{
             // 人名和手机号加密
             if(StringUtils.isNotEmpty(listOwerecVo.getName())){
                 String realName = decrypt(listOwerecVo.getName());
-                listOwerecVo.setName(doMaskForName(realName));
+                if(!reqVO.getDecryptAll()){
+                    listOwerecVo.setName(doMaskForName(realName));
+                }else{
+                    listOwerecVo.setName(realName);
+                }
             }
             if(StringUtils.isNotEmpty(listOwerecVo.getPhone())){
                 String realPhone = decrypt(listOwerecVo.getPhone());
-                listOwerecVo.setPhone(doMaskForPhone(realPhone));
+                if(!reqVO.getDecryptAll()){
+                    listOwerecVo.setPhone(doMaskForPhone(realPhone));
+                }else{
+                    listOwerecVo.setPhone(realPhone);
+                }
             }
 
             // todo 考虑缓存到redis中
@@ -94,6 +103,22 @@ public class ParkingPayUnionServiceImpl implements ParkingPayUnionService{
      * @return
      */
     private String doMaskForPhone(String phone){
+        List<String> phoneList = Arrays.asList(phone.split(","));
+        StringBuilder result_sb = new StringBuilder();
+        for(String phoneStr: phoneList) {
+            result_sb.append(maskMiddleForPhoneStr(phoneStr)).append(",");
+        }
+        result_sb.delete(result_sb.length()-1,result_sb.length());
+        return result_sb.toString();
+    }
+
+    /**
+     * 电话加星号
+     *
+     * @param phone
+     * @return
+     */
+    private String maskMiddleForPhoneStr(String phone){
         if(phone.length() > 7){
             StringBuilder sb = new StringBuilder(phone.length());
             sb.append(phone.substring(0, 3));

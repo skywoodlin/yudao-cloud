@@ -41,5 +41,10 @@ public class ListOwerecReqVO extends PageParam{
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] retrieveTime;
 
+    /**
+     * 是否解密
+     */
+    private Boolean decryptAll;
+
 
 }
