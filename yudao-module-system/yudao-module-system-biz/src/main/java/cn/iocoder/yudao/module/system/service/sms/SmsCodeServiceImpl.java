@@ -45,9 +45,11 @@ public class SmsCodeServiceImpl implements SmsCodeService {
         Assert.notNull(sceneEnum, "验证码场景({}) 查找不到配置", reqDTO.getScene());
         // 创建验证码
         String code = createSmsCode(reqDTO.getMobile(), reqDTO.getScene(), reqDTO.getCreateIp());
-        // 发送验证码
-        smsSendService.sendSingleSms(reqDTO.getMobile(), null, null,
-                sceneEnum.getTemplateCode(), MapUtil.of("code", code));
+        // 原始发送验证码
+//        smsSendService.sendSingleSms(reqDTO.getMobile(), null, null,
+//                sceneEnum.getTemplateCode(), MapUtil.of("code", code));
+        // 20230927修改
+        smsSendService.sendUserLoginCodeSms(reqDTO.getMobile(), MapUtil.of("code", code));
     }
 
     private String createSmsCode(String mobile, Integer scene, String ip) {

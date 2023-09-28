@@ -80,6 +80,13 @@ public class SmsSendServiceImpl implements SmsSendService {
     }
 
     @Override
+    public void sendUserLoginCodeSms(String mobile, Map<String, Object> templateParams) {
+        mobile = validateMobile(mobile);
+        // todo 这里发送调用雅丽的接口发送短信
+
+    }
+
+    @Override
     public Long sendSingleSms(String mobile, Long userId, Integer userType,
                               String templateCode, Map<String, Object> templateParams) {
         // 校验短信模板是否合法
@@ -104,6 +111,8 @@ public class SmsSendServiceImpl implements SmsSendService {
             smsProducer.sendSmsSendMessage(sendLogId, mobile, template.getChannelId(),
                     template.getApiTemplateId(), newTemplateParams);
         }
+
+
         return sendLogId;
     }
 

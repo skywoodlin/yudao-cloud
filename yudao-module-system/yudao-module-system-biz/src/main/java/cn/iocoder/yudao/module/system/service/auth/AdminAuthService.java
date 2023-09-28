@@ -47,12 +47,27 @@ public interface AdminAuthService {
     void sendSmsCode(AuthSmsSendReqVO reqVO);
 
     /**
+     * 短信验证码发送
+     *
+     * @param reqVO 发送请求
+     */
+    void sendSmsCodeNew(AuthSmsSendReqVO reqVO);
+
+    /**
      * 短信登录
      *
      * @param reqVO 登录信息
      * @return 登录结果
      */
     AuthLoginRespVO smsLogin(AuthSmsLoginReqVO reqVO) ;
+
+    /**
+     * 短信登录
+     *
+     * @param reqVO 登录信息
+     * @return 登录结果
+     */
+    AuthLoginRespVO smsLoginNew(AuthSmsLoginReqVO reqVO) ;
 
     /**
      * 社交快捷登录，使用 code 授权码

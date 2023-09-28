@@ -10,6 +10,7 @@ import cn.iocoder.yudao.module.system.api.logger.dto.LoginLogCreateReqDTO;
 import cn.iocoder.yudao.module.system.api.sms.SmsCodeApi;
 import cn.iocoder.yudao.module.system.api.social.dto.SocialUserBindReqDTO;
 import cn.iocoder.yudao.module.system.controller.admin.auth.vo.*;
+import cn.iocoder.yudao.module.system.controller.admin.user.vo.user.UserCreateReqVO;
 import cn.iocoder.yudao.module.system.convert.auth.AuthConvert;
 import cn.iocoder.yudao.module.system.dal.dataobject.oauth2.OAuth2AccessTokenDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.user.AdminUserDO;
@@ -20,6 +21,8 @@ import cn.iocoder.yudao.module.system.enums.sms.SmsSceneEnum;
 import cn.iocoder.yudao.module.system.service.logger.LoginLogService;
 import cn.iocoder.yudao.module.system.service.member.MemberService;
 import cn.iocoder.yudao.module.system.service.oauth2.OAuth2TokenService;
+import cn.iocoder.yudao.module.system.service.permission.PermissionService;
+import cn.iocoder.yudao.module.system.service.permission.RoleService;
 import cn.iocoder.yudao.module.system.service.social.SocialUserService;
 import cn.iocoder.yudao.module.system.service.user.AdminUserService;
 import com.xingyuv.captcha.model.common.ResponseModel;
@@ -32,7 +35,9 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.validation.Validator;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.common.util.servlet.ServletUtils.getClientIP;
@@ -61,13 +66,17 @@ public class AdminAuthServiceImpl implements AdminAuthService {
     private Validator validator;
     @Resource
     private CaptchaService captchaService;
+
+    @Resource
+    private PermissionService permissionService;
+
     @Resource
     private SmsCodeApi smsCodeApi;
 
     /**
      * 验证码的开关，默认为 true
      */
-    @Value("${yudao.captcha.enable:true}")
+    @Value("${yudao.captcha.enable:false}")
     private Boolean captchaEnable;
 
     @Override
@@ -119,6 +128,12 @@ public class AdminAuthServiceImpl implements AdminAuthService {
     }
 
     @Override
+    public void sendSmsCodeNew(AuthSmsSendReqVO reqVO) {
+        // 发送验证码
+        smsCodeApi.sendSmsCode(AuthConvert.INSTANCE.convert(reqVO).setCreateIp(getClientIP()));
+    }
+
+    @Override
     public AuthLoginRespVO smsLogin(AuthSmsLoginReqVO reqVO) {
         // 校验验证码
         smsCodeApi.useSmsCode(AuthConvert.INSTANCE.convert(reqVO, SmsSceneEnum.ADMIN_MEMBER_LOGIN.getScene(), getClientIP()));
@@ -131,6 +146,35 @@ public class AdminAuthServiceImpl implements AdminAuthService {
 
         // 创建 Token 令牌，记录登录日志
         return createTokenAfterLoginSuccess(user.getId(), reqVO.getMobile(), LoginLogTypeEnum.LOGIN_MOBILE);
+    }
+
+    @Override
+    public AuthLoginRespVO smsLoginNew(AuthSmsLoginReqVO reqVO) {
+        // 校验验证码
+        smsCodeApi.useSmsCode(AuthConvert.INSTANCE.convert(reqVO, SmsSceneEnum.ADMIN_MEMBER_LOGIN.getScene(), getClientIP()));
+
+        // 获得用户信息
+        AdminUserDO user = userService.getUserByMobile(reqVO.getMobile());
+        Long userId;
+        if (user == null) {
+            // 添加新用户
+            UserCreateReqVO newUser = new UserCreateReqVO();
+            newUser.setPassword("123456");
+            // 用手机号当username
+            newUser.setUsername(reqVO.getMobile());
+            newUser.setNickname(reqVO.getMobile());
+            userId = userService.createUser(newUser);
+
+            // 关联角色为车主角色， 系统固定为999
+            Set<Long> roleIds = new HashSet<>();
+            roleIds.add(999L);
+            permissionService.assignUserRole(userId, roleIds);
+        } else{
+            userId = user.getId();
+        }
+
+        // 创建 Token 令牌，记录登录日志
+        return createTokenAfterLoginSuccess(userId, reqVO.getMobile(), LoginLogTypeEnum.LOGIN_MOBILE);
     }
 
     private void createLoginLog(Long userId, String username,

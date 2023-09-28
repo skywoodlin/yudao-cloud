@@ -136,7 +136,8 @@ public class AuthController {
     @Operation(summary = "使用短信验证码登录")
     @OperateLog(enable = false) // 避免 Post 请求被记录操作日志
     public CommonResult<AuthLoginRespVO> smsLogin(@RequestBody @Valid AuthSmsLoginReqVO reqVO) {
-        return success(authService.smsLogin(reqVO));
+//        return success(authService.smsLogin(reqVO));
+        return success(authService.smsLoginNew(reqVO));
     }
 
     @PostMapping("/send-sms-code")
@@ -144,7 +145,8 @@ public class AuthController {
     @Operation(summary = "发送手机验证码")
     @OperateLog(enable = false) // 避免 Post 请求被记录操作日志
     public CommonResult<Boolean> sendLoginSmsCode(@RequestBody @Valid AuthSmsSendReqVO reqVO) {
-        authService.sendSmsCode(reqVO);
+//        authService.sendSmsCode(reqVO);
+        authService.sendSmsCodeNew(reqVO);
         return success(true);
     }
 
