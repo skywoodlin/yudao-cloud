@@ -1,6 +1,9 @@
 package cn.iocoder.yudao.module.system.service.parkingpayunion;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.system.controller.admin.cuser.vo.GetOwerecsByPlateNumReqVO;
+import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetEvidenceBySourceIdReqVo;
+import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetEvidenceBySourceIdRespVo;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoSumReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoSumRespVO;
@@ -8,8 +11,6 @@ import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListOw
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListOwerecVo;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListProfitSharingInfoVo;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.DataSources;
-import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.Owerec;
-import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.ProfitSharingInfo;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -25,6 +26,8 @@ public interface ParkingPayUnionService{
 
     PageResult<ListOwerecVo> listOwerec(ListOwerecReqVO reqVO) throws InvocationTargetException, IllegalAccessException;
 
+    PageResult<ListOwerecVo> listOwerecForCUser(GetOwerecsByPlateNumReqVO reqVO) throws InvocationTargetException, IllegalAccessException;
+
 
     Integer getSourceIdByAppid(Integer appid);
 
@@ -33,4 +36,6 @@ public interface ParkingPayUnionService{
     List<DataSources> getDataSources();
 
     PageResult<GetProfitSharingInfoSumRespVO> getProfitSharingInfoSumPage(GetProfitSharingInfoSumReqVO reqVO);
+
+    PageResult<GetEvidenceBySourceIdRespVo> getEvidenceBySourceId(GetEvidenceBySourceIdReqVo reqVO);
 }

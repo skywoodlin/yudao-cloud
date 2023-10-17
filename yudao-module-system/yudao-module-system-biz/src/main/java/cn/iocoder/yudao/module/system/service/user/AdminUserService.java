@@ -209,4 +209,11 @@ public interface AdminUserService {
      */
     boolean isPasswordMatch(String rawPassword, String encodedPassword);
 
+
+    /**
+     * 当前车主是否已审核
+     * @return
+     */
+    Boolean isCurrentCUserVerified();
+
 }

@@ -253,6 +253,8 @@ public class PermissionServiceImpl implements PermissionService {
         if (!CollectionUtil.isEmpty(createRoleIds)) {
             userRoleMapper.insertBatch(CollectionUtils.convertList(createRoleIds, roleId -> {
                 UserRoleDO entity = new UserRoleDO();
+                System.out.println("userId: " + userId);
+                System.out.println("roleId: " + roleId);
                 entity.setUserId(userId);
                 entity.setRoleId(roleId);
                 return entity;

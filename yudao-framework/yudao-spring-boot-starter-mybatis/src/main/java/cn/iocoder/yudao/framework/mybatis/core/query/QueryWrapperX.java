@@ -147,19 +147,21 @@ public class QueryWrapperX<T> extends QueryWrapper<T> {
      * @return this
      */
     public QueryWrapperX<T> limitN(int n) {
-        Assert.notNull(SqlConstants.DB_TYPE, "获取不到数据库的类型");
-        switch (SqlConstants.DB_TYPE) {
-            case ORACLE:
-            case ORACLE_12C:
-                super.eq("ROWNUM", n);
-                break;
-            case SQL_SERVER:
-            case SQL_SERVER2005:
-                super.select("TOP " + n + " *"); // 由于 SQL Server 是通过 SELECT TOP 1 实现限制一条，所以只好使用 * 查询剩余字段
-                break;
-            default:
-                super.last("LIMIT " + n);
-        }
+        // todo skywoodlin 权宜之计
+//        Assert.notNull(SqlConstants.DB_TYPE, "获取不到数据库的类型");
+//        switch (SqlConstants.DB_TYPE) {
+//            case ORACLE:
+//            case ORACLE_12C:
+//                super.eq("ROWNUM", n);
+//                break;
+//            case SQL_SERVER:
+//            case SQL_SERVER2005:
+//                super.select("TOP " + n + " *"); // 由于 SQL Server 是通过 SELECT TOP 1 实现限制一条，所以只好使用 * 查询剩余字段
+//                break;
+//            default:
+//                super.last("LIMIT " + n);
+//        }
+        super.last("LIMIT " + n);
         return this;
     }
 

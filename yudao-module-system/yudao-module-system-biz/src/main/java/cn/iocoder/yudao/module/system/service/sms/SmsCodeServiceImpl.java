@@ -43,7 +43,7 @@ public class SmsCodeServiceImpl implements SmsCodeService {
     public void sendSmsCode(SmsCodeSendReqDTO reqDTO) {
         SmsSceneEnum sceneEnum = SmsSceneEnum.getCodeByScene(reqDTO.getScene());
         Assert.notNull(sceneEnum, "验证码场景({}) 查找不到配置", reqDTO.getScene());
-        // 创建验证码
+        // 创建验证码, 并将验证码保存到数据库中
         String code = createSmsCode(reqDTO.getMobile(), reqDTO.getScene(), reqDTO.getCreateIp());
         // 原始发送验证码
 //        smsSendService.sendSingleSms(reqDTO.getMobile(), null, null,

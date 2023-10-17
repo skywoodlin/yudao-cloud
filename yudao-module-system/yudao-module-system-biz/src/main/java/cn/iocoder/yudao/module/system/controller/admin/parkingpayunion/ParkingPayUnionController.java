@@ -3,6 +3,8 @@ package cn.iocoder.yudao.module.system.controller.admin.parkingpayunion;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
+import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetEvidenceBySourceIdReqVo;
+import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetEvidenceBySourceIdRespVo;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoSumReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoSumRespVO;
@@ -99,6 +101,15 @@ public class ParkingPayUnionController{
         List<ImportOwerecVo> list = ExcelUtils.read(file, ImportOwerecVo.class);
         System.out.println("hh");
 //        return success(parkingPayUnionService.importOwerec(list, updateSupport));
+    }
+
+
+    @GetMapping("/getEvidenceBySourceId")
+    @Operation(summary = "获取用户证据")
+    // todo 这里本来要设置权限， 先不设
+    @PermitAll
+    public CommonResult<PageResult<GetEvidenceBySourceIdRespVo>> getEvidenceBySourceId(GetEvidenceBySourceIdReqVo reqVO) {
+        return success(parkingPayUnionService.getEvidenceBySourceId(reqVO));
     }
 
 

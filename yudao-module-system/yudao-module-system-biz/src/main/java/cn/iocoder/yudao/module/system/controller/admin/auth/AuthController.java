@@ -88,6 +88,7 @@ public class AuthController {
     @Operation(summary = "刷新令牌")
     @Parameter(name = "refreshToken", description = "刷新令牌", required = true)
     @OperateLog(enable = false) // 避免 Post 请求被记录操作日志
+//    public CommonResult<AuthLoginRespVO> refreshToken(@RequestParam("refreshToken") String refreshToken) {
     public CommonResult<AuthLoginRespVO> refreshToken(@RequestParam("refreshToken") String refreshToken) {
         return success(authService.refreshToken(refreshToken));
     }
@@ -129,13 +130,22 @@ public class AuthController {
         return success(AuthConvert.INSTANCE.buildMenuTree(menuList));
     }
 
-    // ========== 短信登录相关 ==========
 
+    // 原短信登录
+//    @PostMapping("/sms-login")
+//    @PermitAll
+//    @Operation(summary = "使用短信验证码登录")
+//    @OperateLog(enable = false) // 避免 Post 请求被记录操作日志
+//    public CommonResult<AuthLoginRespVO> smsLogin(@RequestBody @Valid AuthSmsLoginReqVO reqVO) throws Exception {
+//        return success(authService.smsLogin(reqVO));
+//    }
+
+    // ========== 短信登录相关 ==========
     @PostMapping("/sms-login")
     @PermitAll
     @Operation(summary = "使用短信验证码登录")
     @OperateLog(enable = false) // 避免 Post 请求被记录操作日志
-    public CommonResult<AuthLoginRespVO> smsLogin(@RequestBody @Valid AuthSmsLoginReqVO reqVO) {
+    public CommonResult<AuthLoginRespVOForCUser> smsLogin(@RequestBody @Valid AuthSmsLoginReqVO reqVO) throws Exception {
 //        return success(authService.smsLogin(reqVO));
         return success(authService.smsLoginNew(reqVO));
     }

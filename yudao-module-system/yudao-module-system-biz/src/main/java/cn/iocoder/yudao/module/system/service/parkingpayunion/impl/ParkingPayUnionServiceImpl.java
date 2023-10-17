@@ -1,6 +1,9 @@
 package cn.iocoder.yudao.module.system.service.parkingpayunion.impl;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.system.controller.admin.cuser.vo.GetOwerecsByPlateNumReqVO;
+import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetEvidenceBySourceIdReqVo;
+import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetEvidenceBySourceIdRespVo;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoSumReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoSumRespVO;
@@ -8,13 +11,16 @@ import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListOw
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListOwerecVo;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListProfitSharingInfoVo;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.DataSources;
+import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.EvidenceBarn;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.Owerec;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.ProfitSharingInfo;
 import cn.iocoder.yudao.module.system.dal.mysql.parkingpayunion.DataSourcesMapper;
+import cn.iocoder.yudao.module.system.dal.mysql.parkingpayunion.EvidenceBarnMapper;
 import cn.iocoder.yudao.module.system.dal.mysql.parkingpayunion.OwerecMapper;
 import cn.iocoder.yudao.module.system.dal.mysql.parkingpayunion.ParkingPayUnionMapper;
 import cn.iocoder.yudao.module.system.dal.mysql.parkingpayunion.ProfitSharingInfoMapper;
 import cn.iocoder.yudao.module.system.service.parkingpayunion.ParkingPayUnionService;
+import cn.iocoder.yudao.module.system.service.user.AdminUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -42,16 +48,23 @@ import static cn.iocoder.yudao.module.system.util.encrypt.PuzekAESUtil.decrypt;
 public class ParkingPayUnionServiceImpl implements ParkingPayUnionService{
 
     @Resource
-    ParkingPayUnionMapper parkingPayUnionMapper;
+    private ParkingPayUnionMapper parkingPayUnionMapper;
 
     @Resource
-    OwerecMapper owerecMapper;
+    private OwerecMapper owerecMapper;
 
     @Resource
-    DataSourcesMapper dataSourcesMapper;
+    private DataSourcesMapper dataSourcesMapper;
 
     @Resource
-    ProfitSharingInfoMapper profitSharingInfoMapper;
+    private ProfitSharingInfoMapper profitSharingInfoMapper;
+
+    @Resource
+    private EvidenceBarnMapper evidenceBarnMapper;
+
+    @Resource
+    private AdminUserService userService;
+
 
 
     @Override
@@ -93,6 +106,54 @@ public class ParkingPayUnionServiceImpl implements ParkingPayUnionService{
             result.add(listOwerecVo);
         }
 
+        return new PageResult<>(result, totalCounts);
+    }
+
+    @Override
+    public PageResult<ListOwerecVo> listOwerecForCUser(GetOwerecsByPlateNumReqVO reqVO) throws InvocationTargetException,
+            IllegalAccessException{
+        ListOwerecReqVO tempReqVo = new ListOwerecReqVO();
+        tempReqVo.setPageNo(reqVO.getPageNo());
+        tempReqVo.setPageSize(reqVO.getPageSize());
+        tempReqVo.setPlateNum(reqVO.getPlateNum());
+        PageResult<Owerec> result_temp = owerecMapper.selectPage(tempReqVo);
+
+        List<ListOwerecVo> result = new ArrayList<>();
+        List<Owerec> owerecList = result_temp.getList();
+
+        Boolean isCurrentUserVerified = userService.isCurrentCUserVerified();
+
+        for(Owerec owerec : owerecList){
+            ListOwerecVo listOwerecVo = new ListOwerecVo();
+            BeanUtils.copyProperties(listOwerecVo, owerec);
+            // 人名和手机号加密
+            if(StringUtils.isNotEmpty(listOwerecVo.getName())){
+                String realName = decrypt(listOwerecVo.getName());
+                    listOwerecVo.setName(doMaskForName(realName));
+            }
+            if(StringUtils.isNotEmpty(listOwerecVo.getPhone())){
+                String realPhone = decrypt(listOwerecVo.getPhone());
+                    listOwerecVo.setPhone(doMaskForPhone(realPhone));
+            }
+
+            // 图片url
+            List<String> photoUrlList = parkingPayUnionMapper.getPhotoListByOwerecId(listOwerecVo.getId());
+            listOwerecVo.setPhotoUrls(photoUrlList);
+            result.add(listOwerecVo);
+
+            // 没验证的用户只看一条记录
+            if(!isCurrentUserVerified) {
+                break;
+            }
+        }
+
+        Long totalCounts = 0L;
+        Long realCounts = result_temp.getTotal();
+        if(isCurrentUserVerified) {
+            totalCounts = realCounts;
+        }else{
+            totalCounts = realCounts == 0L ? 0L:1L;
+        }
         return new PageResult<>(result, totalCounts);
     }
 
@@ -235,6 +296,35 @@ public class ParkingPayUnionServiceImpl implements ParkingPayUnionService{
         PageResult<GetProfitSharingInfoSumRespVO> result = new PageResult<>(sharingInfoSumList, totalCounts);
 
         return result;
+    }
+
+    @Override
+    public PageResult<GetEvidenceBySourceIdRespVo> getEvidenceBySourceId(GetEvidenceBySourceIdReqVo reqVO){
+        PageResult<EvidenceBarn> result_temp = evidenceBarnMapper.selectPage(reqVO);
+        Long totalCounts = result_temp.getTotal();
+
+        List<GetEvidenceBySourceIdRespVo> result = new ArrayList<>();
+        List<EvidenceBarn> evidenceBarnList = result_temp.getList();
+
+
+        String sourceName = "";
+        if(evidenceBarnList.size() > 0){
+            sourceName = parkingPayUnionMapper.getDataSourceNameById(evidenceBarnList.get(0).getSourceId());
+        }
+
+        for(EvidenceBarn evidenceBarn: evidenceBarnList) {
+            GetEvidenceBySourceIdRespVo vo = new GetEvidenceBySourceIdRespVo();
+            try {
+                BeanUtils.copyProperties(vo, evidenceBarn);
+            }catch(Exception e) {
+                log.error(e.getMessage());
+                continue;
+            }
+            vo.setSourceName(sourceName);
+            result.add(vo);
+        }
+
+        return new PageResult<>(result, totalCounts);
     }
 
 

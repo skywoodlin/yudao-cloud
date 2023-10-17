@@ -4,12 +4,17 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
 import cn.iocoder.yudao.framework.common.exception.ServiceException;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.yudao.framework.datapermission.core.util.DataPermissionUtils;
+import cn.iocoder.yudao.framework.security.core.LoginUser;
 import cn.iocoder.yudao.module.infra.api.file.FileApi;
+import cn.iocoder.yudao.module.system.controller.admin.user.vo.profile.CuserPlateVO;
 import cn.iocoder.yudao.module.system.controller.admin.user.vo.profile.UserProfileUpdatePasswordReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.user.vo.profile.UserProfileUpdateReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.user.vo.user.*;
@@ -25,12 +30,15 @@ import cn.iocoder.yudao.module.system.service.permission.PermissionService;
 import cn.iocoder.yudao.module.system.service.tenant.TenantService;
 import com.google.common.annotations.VisibleForTesting;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.map.HashedMap;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Nullable;
 import javax.annotation.Resource;
 import java.io.InputStream;
 import java.time.LocalDateTime;
@@ -39,6 +47,7 @@ import java.util.*;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertList;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.convertSet;
+import static cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils.getAuthentication;
 import static cn.iocoder.yudao.module.system.enums.ErrorCodeConstants.*;
 
 /**
@@ -73,6 +82,9 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Resource
     private FileApi fileApi;
+
+    @Value("${parkingInfoEntryService.url}")
+    private String parkingInfoEntryServiceUrl;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -444,6 +456,16 @@ public class AdminUserServiceImpl implements AdminUserService {
         return passwordEncoder.matches(rawPassword, encodedPassword);
     }
 
+    @Override
+    public Boolean isCurrentCUserVerified(){
+        Long userId = getLoginUserId();
+        CuserPlateVO cuserPlateVO = getCUserPlateInfo(userId);
+        if(cuserPlateVO != null && cuserPlateVO.getVerifiedStatus() != null && cuserPlateVO.getVerifiedStatus() == 1) {
+            return true;
+        }
+        return false;
+    }
+
     /**
      * 对密码进行加密
      *
@@ -454,4 +476,38 @@ public class AdminUserServiceImpl implements AdminUserService {
         return passwordEncoder.encode(password);
     }
 
+    /**
+     * 获得当前用户的编号，从上下文中
+     *
+     * @return 用户编号
+     */
+    @Nullable
+    public static Long getLoginUserId() {
+        LoginUser loginUser = getLoginUser();
+        return loginUser != null ? loginUser.getId() : null;
+    }
+
+    @Nullable
+    public static LoginUser getLoginUser() {
+        Authentication authentication = getAuthentication();
+        if (authentication == null) {
+            return null;
+        }
+        return authentication.getPrincipal() instanceof LoginUser ? (LoginUser) authentication.getPrincipal() : null;
+    }
+
+    private CuserPlateVO getCUserPlateInfo(Long userId){
+        Map<String, Object> paramMap = new HashedMap();
+        paramMap.put("userId", userId);
+        String url = parkingInfoEntryServiceUrl + "getCUserPlateInfo";
+        String result = HttpUtil.post(url, paramMap);
+
+        JSONObject jsonObject = JSONUtil.parseObj(result);
+        String result2 = jsonObject.get("data").toString();
+        if(result2 == "null") {
+            return null;
+        }
+        CuserPlateVO cuserPlateVO = JSONUtil.toBean(result2, CuserPlateVO.class);
+        return cuserPlateVO;
+    }
 }

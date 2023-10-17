@@ -95,10 +95,14 @@ public class IdTypeEnvironmentPostProcessor implements EnvironmentPostProcessor 
 
     public static DbType getDbType(ConfigurableEnvironment environment) {
         String primary = environment.getProperty(DATASOURCE_DYNAMIC_KEY + "." + "primary");
+        System.out.println("------------------skywoodlin--------------------------");
+        System.out.println("primary: "+ primary);
         if (StrUtil.isEmpty(primary)) {
             return null;
         }
         String url = environment.getProperty(DATASOURCE_DYNAMIC_KEY + ".datasource." + primary + ".url");
+        System.out.println("------------------skywoodlin--------------------------");
+        System.out.println("url: "+ url);
         if (StrUtil.isEmpty(url)) {
             return null;
         }

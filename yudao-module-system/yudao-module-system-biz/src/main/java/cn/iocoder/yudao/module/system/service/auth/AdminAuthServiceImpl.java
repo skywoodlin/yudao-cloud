@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.system.service.auth;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.http.HttpUtil;
 import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
 import cn.iocoder.yudao.framework.common.enums.UserTypeEnum;
 import cn.iocoder.yudao.framework.common.util.monitor.TracerUtils;
@@ -10,6 +11,7 @@ import cn.iocoder.yudao.module.system.api.logger.dto.LoginLogCreateReqDTO;
 import cn.iocoder.yudao.module.system.api.sms.SmsCodeApi;
 import cn.iocoder.yudao.module.system.api.social.dto.SocialUserBindReqDTO;
 import cn.iocoder.yudao.module.system.controller.admin.auth.vo.*;
+import cn.iocoder.yudao.module.system.controller.admin.user.vo.profile.CuserPlateVO;
 import cn.iocoder.yudao.module.system.controller.admin.user.vo.user.UserCreateReqVO;
 import cn.iocoder.yudao.module.system.convert.auth.AuthConvert;
 import cn.iocoder.yudao.module.system.dal.dataobject.oauth2.OAuth2AccessTokenDO;
@@ -30,16 +32,20 @@ import com.xingyuv.captcha.model.vo.CaptchaVO;
 import com.xingyuv.captcha.service.CaptchaService;
 import com.google.common.annotations.VisibleForTesting;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.map.HashedMap;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.validation.Validator;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.singleton;
 import static cn.iocoder.yudao.framework.common.util.servlet.ServletUtils.getClientIP;
 import static cn.iocoder.yudao.module.system.enums.ErrorCodeConstants.*;
 
@@ -78,6 +84,9 @@ public class AdminAuthServiceImpl implements AdminAuthService {
      */
     @Value("${yudao.captcha.enable:false}")
     private Boolean captchaEnable;
+
+    @Value("${parkingInfoEntryService.url}")
+    private String parkingInfoEntryServiceUrl;
 
     @Override
     public AdminUserDO authenticate(String username, String password) {
@@ -149,13 +158,14 @@ public class AdminAuthServiceImpl implements AdminAuthService {
     }
 
     @Override
-    public AuthLoginRespVO smsLoginNew(AuthSmsLoginReqVO reqVO) {
+    public AuthLoginRespVOForCUser smsLoginNew(AuthSmsLoginReqVO reqVO) throws Exception{
         // 校验验证码
         smsCodeApi.useSmsCode(AuthConvert.INSTANCE.convert(reqVO, SmsSceneEnum.ADMIN_MEMBER_LOGIN.getScene(), getClientIP()));
 
         // 获得用户信息
         AdminUserDO user = userService.getUserByMobile(reqVO.getMobile());
         Long userId;
+        Integer roleId = 999;
         if (user == null) {
             // 添加新用户
             UserCreateReqVO newUser = new UserCreateReqVO();
@@ -163,18 +173,43 @@ public class AdminAuthServiceImpl implements AdminAuthService {
             // 用手机号当username
             newUser.setUsername(reqVO.getMobile());
             newUser.setNickname(reqVO.getMobile());
+            newUser.setMobile(reqVO.getMobile());
             userId = userService.createUser(newUser);
 
             // 关联角色为车主角色， 系统固定为999
             Set<Long> roleIds = new HashSet<>();
             roleIds.add(999L);
             permissionService.assignUserRole(userId, roleIds);
+
+            // cuser_plate表
+            Map<String, Object> paramMap = new HashedMap();
+            paramMap.put("userId", userId.intValue());
+            paramMap.put("mobile", reqVO.getMobile());
+            String saveUrl = parkingInfoEntryServiceUrl+ "saveCUserPlate";
+            String result = HttpUtil.post(saveUrl, paramMap);
         } else{
             userId = user.getId();
+            Set<Long> roleIds = permissionService.getUserRoleIdsFromCache(userId, singleton(CommonStatusEnum.ENABLE.getStatus()));
+            if(roleIds.contains(997L)){
+                roleId = 997;
+            }else if(roleIds.contains(998L)){
+                roleId = 998;
+            }else if(roleIds.contains(999L)){
+                roleId = 999;
+            }else {
+                roleId = 999;
+            }
+        }
+
+        Boolean isNewUser;
+        if(user == null) {
+            isNewUser = true;
+        }else{
+            isNewUser = false;
         }
 
         // 创建 Token 令牌，记录登录日志
-        return createTokenAfterLoginSuccess(userId, reqVO.getMobile(), LoginLogTypeEnum.LOGIN_MOBILE);
+        return createTokenAfterLoginSuccessForCUser(userId, reqVO.getMobile(), LoginLogTypeEnum.LOGIN_MOBILE, isNewUser, roleId);
     }
 
     private void createLoginLog(Long userId, String username,
@@ -242,6 +277,32 @@ public class AdminAuthServiceImpl implements AdminAuthService {
                 OAuth2ClientConstants.CLIENT_ID_DEFAULT, null);
         // 构建返回结果
         return AuthConvert.INSTANCE.convert(accessTokenDO);
+    }
+
+    private AuthLoginRespVOForCUser createTokenAfterLoginSuccessForCUser(Long userId, String username, LoginLogTypeEnum logType
+            , Boolean isNewUser, Integer roleId) {
+        // 插入登陆日志
+        createLoginLog(userId, username, logType, LoginResultEnum.SUCCESS);
+        // 创建访问令牌
+        OAuth2AccessTokenDO accessTokenDO = oauth2TokenService.createAccessToken(userId, getUserType().getValue(),
+                OAuth2ClientConstants.CLIENT_ID_DEFAULT, null);
+        // 构建返回结果
+        AuthLoginRespVO tempVO = AuthConvert.INSTANCE.convert(accessTokenDO);
+
+        AuthLoginRespVOForCUser result = new AuthLoginRespVOForCUser();
+        BeanUtils.copyProperties(tempVO, result);
+
+        // 设置其他属性
+        if(isNewUser) {
+            // 一定有值
+            result.setVerifiedStatus(0);
+        }else{
+            result.setVerifiedStatus(1);
+        }
+
+        result.setRoleId(roleId);
+
+        return result;
     }
 
     @Override
