@@ -182,11 +182,11 @@ public class AdminAuthServiceImpl implements AdminAuthService {
             permissionService.assignUserRole(userId, roleIds);
 
             // cuser_plate表
-            Map<String, Object> paramMap = new HashedMap();
-            paramMap.put("userId", userId.intValue());
-            paramMap.put("mobile", reqVO.getMobile());
-            String saveUrl = parkingInfoEntryServiceUrl+ "saveCUserPlate";
-            String result = HttpUtil.post(saveUrl, paramMap);
+//            Map<String, Object> paramMap = new HashedMap();
+//            paramMap.put("userId", userId.intValue());
+//            paramMap.put("mobile", reqVO.getMobile());
+//            String saveUrl = parkingInfoEntryServiceUrl+ "saveCUserPlate";
+//            String result = HttpUtil.post(saveUrl, paramMap);
         } else{
             userId = user.getId();
             Set<Long> roleIds = permissionService.getUserRoleIdsFromCache(userId, singleton(CommonStatusEnum.ENABLE.getStatus()));

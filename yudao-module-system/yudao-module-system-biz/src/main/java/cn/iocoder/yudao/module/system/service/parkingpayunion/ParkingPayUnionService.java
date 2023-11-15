@@ -38,4 +38,21 @@ public interface ParkingPayUnionService{
     PageResult<GetProfitSharingInfoSumRespVO> getProfitSharingInfoSumPage(GetProfitSharingInfoSumReqVO reqVO);
 
     PageResult<GetEvidenceBySourceIdRespVo> getEvidenceBySourceId(GetEvidenceBySourceIdReqVo reqVO);
+
+    /**
+     * 更新CUser的认证状态
+     * @param id
+     * @param verifiedStatus
+     */
+    void updateVerifiedStatus(Integer id, Integer verifiedStatus, String verifyMsg);
+
+    /**
+     * 根据userId更新CUserPlate表信息
+     * @param userId
+     * @param plateNum
+     * @param plateColor
+     * @param imgUrl
+     */
+    void updateCUserPlate(Integer userId, String plateNum, String plateColor, String imgUrl);
+
 }

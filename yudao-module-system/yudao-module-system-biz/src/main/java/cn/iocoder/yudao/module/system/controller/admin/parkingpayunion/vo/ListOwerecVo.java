@@ -18,6 +18,8 @@ public class ListOwerecVo extends Owerec{
     // 图片url
     private List<String> photoUrls;
 
+    private List<Integer> evidenceIds;
+
     public String getSourceName(){
         return sourceName;
     }
@@ -32,5 +34,13 @@ public class ListOwerecVo extends Owerec{
 
     public void setPhotoUrls(List<String> photoUrls){
         this.photoUrls = photoUrls;
+    }
+
+    public List<Integer> getEvidenceIds(){
+        return evidenceIds;
+    }
+
+    public void setEvidenceIds(List<Integer> evidenceIds){
+        this.evidenceIds = evidenceIds;
     }
 }

@@ -13,4 +13,5 @@ import lombok.Data;
 @Data
 public class GetOwerecsByPlateNumReqVO extends PageParam{
     private String plateNum;
+    private String plateColor;
 }

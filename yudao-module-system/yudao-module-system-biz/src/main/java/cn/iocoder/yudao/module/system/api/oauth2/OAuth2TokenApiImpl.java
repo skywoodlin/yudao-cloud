@@ -37,7 +37,7 @@ public class OAuth2TokenApiImpl implements OAuth2TokenApi {
     public CommonResult<OAuth2AccessTokenCheckRespDTO> checkAccessToken(String accessToken) {
         return success(OAuth2TokenConvert.INSTANCE.convert(oauth2TokenService.checkAccessToken(accessToken)));
     }
-
+//
     @Override
     public CommonResult<OAuth2AccessTokenRespDTO> removeAccessToken(String accessToken) {
         OAuth2AccessTokenDO accessTokenDO = oauth2TokenService.removeAccessToken(accessToken);

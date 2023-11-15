@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.system.controller.admin.user;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Assert;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
@@ -14,7 +15,6 @@ import cn.iocoder.yudao.framework.common.exception.ErrorCode;
 import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.framework.datapermission.core.annotation.DataPermission;
 import cn.iocoder.yudao.framework.operatelog.core.annotations.OperateLog;
-import cn.iocoder.yudao.module.system.controller.admin.user.vo.evidence.EvidenceBarn;
 import cn.iocoder.yudao.module.system.controller.admin.user.vo.profile.CUserProfileRespVO;
 import cn.iocoder.yudao.module.system.controller.admin.user.vo.profile.CuserPlateVO;
 import cn.iocoder.yudao.module.system.controller.admin.user.vo.profile.UserProfileRespVO;
@@ -23,11 +23,14 @@ import cn.iocoder.yudao.module.system.controller.admin.user.vo.profile.UserProfi
 import cn.iocoder.yudao.module.system.convert.user.UserConvert;
 import cn.iocoder.yudao.module.system.dal.dataobject.dept.DeptDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.dept.PostDO;
+import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.EvidenceBarn;
 import cn.iocoder.yudao.module.system.dal.dataobject.permission.RoleDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.social.SocialUserDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.user.AdminUserDO;
+import cn.iocoder.yudao.module.system.dal.mysql.parkingpayunion.ParkingPayUnionMapper;
 import cn.iocoder.yudao.module.system.service.dept.DeptService;
 import cn.iocoder.yudao.module.system.service.dept.PostService;
+import cn.iocoder.yudao.module.system.service.parkingpayunion.ParkingPayUnionService;
 import cn.iocoder.yudao.module.system.service.permission.PermissionService;
 import cn.iocoder.yudao.module.system.service.permission.RoleService;
 import cn.iocoder.yudao.module.system.service.social.SocialUserService;
@@ -89,6 +92,12 @@ public class UserProfileController{
     private RoleService roleService;
     @Resource
     private SocialUserService socialService;
+
+    @Resource
+    private ParkingPayUnionMapper parkingPayUnionMapper;
+
+    @Resource
+    private ParkingPayUnionService parkingPayUnionService;
 
     @Value("${parkingInfoEntryService.url}")
     private String parkingInfoEntryServiceUrl;
@@ -171,14 +180,15 @@ public class UserProfileController{
 
         respVO.setUserId(userId);
         respVO.setMobile(userDO.getMobile());
-        CuserPlateVO cuserPlateVO = getCUserPlateInfo(userId);
+        List<CuserPlateVO> cuserPlateVOList = getCUserPlateInfoList(userId);
 
-        if(cuserPlateVO != null) {
-            respVO.setCarLicenseImageUrl(cuserPlateVO.getCarLicenseImageUrl());
-            respVO.setVerifiedStatus(cuserPlateVO.getVerifiedStatus());
-            respVO.setPlateNum(cuserPlateVO.getPlateNum());
-            respVO.setPlateColor(cuserPlateVO.getPlateColor());
-        }
+        respVO.setCuserPlateVOList(cuserPlateVOList);
+//        if(cuserPlateVO != null) {
+//            respVO.setCarLicenseImageUrl(cuserPlateVO.getCarLicenseImageUrl());
+//            respVO.setVerifiedStatus(cuserPlateVO.getVerifiedStatus());
+//            respVO.setPlateNum(cuserPlateVO.getPlateNum());
+//            respVO.setPlateColor(cuserPlateVO.getPlateColor());
+//        }
 
         return success(respVO);
     }
@@ -188,27 +198,26 @@ public class UserProfileController{
     public CommonResult<String> updateVerifiedStatus(@RequestBody Map<String, Object> requestBody){
 
         // 获取userId和verifiedStatus参数
-        Integer userId = (Integer) requestBody.get("userId");
+//        Integer userId = (Integer) requestBody.get("userId");
+        // 这个是cuserplate的id
+        Integer id = (Integer) requestBody.get("id");
         Integer verifiedStatus = (Integer) requestBody.get("verifiedStatus");
 
-        if(userId == null || verifiedStatus == null){
-            throw exception(new ErrorCode(1001003005, "userId，认证结果至少有一个没有传入"));
+//        if(userId == null || verifiedStatus == null){
+        if(id == null || verifiedStatus == null){
+            throw exception(new ErrorCode(1001003005, "t_cuser_plate的id，认证结果至少有一个没有传入"));
         }
-        String remoteUrl = parkingInfoEntryServiceUrl + "updateVerifiedStatus";
-        Map<String, Object> paramMap = new HashedMap();
-        paramMap.put("userId", userId);
-        paramMap.put("verifiedStatus", verifiedStatus);
 
-        String resultJson = HttpUtil.post(remoteUrl, paramMap);
-
-        JSONObject jsonObject = JSONUtil.parseObj(resultJson);
-        String result2 = jsonObject.get("status").toString();
-
-        if("100".equals(result2)){
-            return success("");
-        }else{
-            return error(new ErrorCode(1001003006, jsonObject.get("message").toString()));
+        String verifyMsg = "";
+        if(verifiedStatus == 2) {
+            verifyMsg = (String) requestBody.get("verifyMsg");
+            if(StringUtils.isEmpty(verifyMsg)){
+                throw exception(new ErrorCode(1001003010, "没有传入审核失败原因"));
+            }
         }
+
+        parkingPayUnionService.updateVerifiedStatus(id, verifiedStatus, verifyMsg);
+        return success("修改审核状态成功");
     }
 
 
@@ -233,14 +242,17 @@ public class UserProfileController{
         }
 
         List<String> imgUrlList = new ArrayList<>();
-        // 上传行驶证图片 至少一张， 可能由两张
+        // 上传行驶证图片 至少一张， 可能有两张
         for(MultipartFile image : file){
             String imgUrl = doUploadCarLicense(image);
             imgUrlList.add(imgUrl);
         }
 
         String imgUrl_final = String.join(",", imgUrlList);
-        updateCUserPlateInfo(userId, plateNum, plateColor, imgUrl_final);
+
+//        updateCUserPlateInfo(userId, plateNum, plateColor, imgUrl_final);
+
+        parkingPayUnionService.updateCUserPlate(userId, plateNum, plateColor, imgUrl_final);
 
         return success("车主资料上传成功");
     }
@@ -313,7 +325,7 @@ public class UserProfileController{
     @GetMapping("/getPendingApprovalList") // 解决 uni-app 不支持 Put 上传文件的问题
     @Operation(summary = "获取审核列表")
     @OperateLog(enable = false) // 避免 Post 请求被记录操作日志
-    public CommonResult<List<CUserProfileRespVO>> getPendingApprovalList() throws Exception{
+    public CommonResult<List<CuserPlateVO>> getPendingApprovalList() throws Exception{
         Long userId = getLoginUserId();
         Set<Long> roleIds = permissionService.getUserRoleIdListByUserId(userId);
         if(!(roleIds.contains(998L) || roleIds.contains(997L))){
@@ -326,7 +338,7 @@ public class UserProfileController{
         JSONObject jsonObject = JSONUtil.parseObj(result);
         String result2 = jsonObject.get("data").toString();
         // todo 报错解析
-        if(result2 == "null") {
+        if("[]".equals(result2)){
             return success(Collections.emptyList());
         }
         JSONArray jsonArray = JSONUtil.parseArray(result2);
@@ -335,10 +347,10 @@ public class UserProfileController{
             return success(Collections.emptyList());
         }
 
-        List<CUserProfileRespVO> finalResult = new ArrayList<>();
+        List<CuserPlateVO> finalResult = new ArrayList<>();
         for(Object tempObj : jsonArray){
             JSONObject tempObj2 = (JSONObject) tempObj;
-            CUserProfileRespVO cuserPlateVO = JSONUtil.toBean(tempObj2, CUserProfileRespVO.class);
+            CuserPlateVO cuserPlateVO = JSONUtil.toBean(tempObj2, CuserPlateVO.class);
             finalResult.add(cuserPlateVO);
         }
 
@@ -348,6 +360,7 @@ public class UserProfileController{
 
     /**
      * 获取征信证据列表, 用户是否是已审核用户由parkingInfoEntryService里判断
+     *
      * @param requestBody
      * @return
      * @throws Exception
@@ -356,11 +369,28 @@ public class UserProfileController{
     @Operation(summary = "获取征信证据列表")
     @OperateLog(enable = false) // 避免 Post 请求被记录操作日志
     public CommonResult<List<EvidenceBarn>> getEvidenceByPlateNum(@RequestBody Map<String, Object> requestBody) throws Exception{
+        String plateNum = (String) requestBody.get("plateNum");
+        String plateColor = (String) requestBody.get("plateColor");
+
+        List<Integer> evidenceIds = (List<Integer>) requestBody.get("evidenceIds");
+
+        if(evidenceIds == null || evidenceIds.size() == 0) {
+            if(plateColor == null || plateNum == null){
+                throw exception(new ErrorCode(1001003009, "没有传入evidenceIds的情况下必须传入车牌号码和车牌颜色"));
+            }
+        }else{
+            // 传入了evidenceIds， 就只获取evidenceIds对应的记录并返回
+            List<EvidenceBarn> resultList = parkingPayUnionMapper.selectEvidenceBarnByIds(evidenceIds);
+            return success(resultList);
+        }
+
+
         Map<String, Object> paramMap = new HashedMap();
         Long userId = getLoginUserId();
 
-        String plateNum = (String) requestBody.get("plateNum");
         paramMap.put("plateNum", plateNum);
+        paramMap.put("plateColor", plateColor);
+
 
         paramMap.put("userId", userId);
         String remoteUrl = parkingInfoEntryServiceUrl + "getEvidenceByPlateNum";
@@ -370,7 +400,7 @@ public class UserProfileController{
         String result2 = jsonObject.get("data").toString();
 
         // todo 报错解析
-        if(result2 == "null") {
+        if(result2 == "null"){
             return success(Collections.emptyList());
         }
         JSONArray jsonArray = JSONUtil.parseArray(result2);
@@ -391,39 +421,45 @@ public class UserProfileController{
 
     /**
      * 获取登录用户的用户-车牌表数据
+     *
      * @param userId
      * @return
      */
-    private CuserPlateVO getCUserPlateInfo(Long userId){
+    private List<CuserPlateVO> getCUserPlateInfoList(Long userId){
         Map<String, Object> paramMap = new HashedMap();
         paramMap.put("userId", userId);
-        String url = parkingInfoEntryServiceUrl + "getCUserPlateInfo";
+        String url = parkingInfoEntryServiceUrl + "getCUserPlatesByUserId";
         String result = HttpUtil.post(url, paramMap);
 
         JSONObject jsonObject = JSONUtil.parseObj(result);
         String result2 = jsonObject.get("data").toString();
-        if(result2 == "null") {
-            return null;
+        if(result2 == "[]"){
+            return Collections.emptyList();
         }
-        CuserPlateVO cuserPlateVO = JSONUtil.toBean(result2, CuserPlateVO.class);
-        return cuserPlateVO;
+
+        // 将JSON字符串转换为JSONArray对象
+        JSONArray resultArray = JSONUtil.parseArray(result2);
+        List<CuserPlateVO> result_final = resultArray.toList(CuserPlateVO.class);
+//        CuserPlateVO cuserPlateVO = JSONUtil.toBean(result2, CuserPlateVO.class);
+        return result_final;
     }
 
-    private Boolean isCurrentCUserVerified() {
-        Long userId = getLoginUserId();
-        CuserPlateVO cuserPlateVO = getCUserPlateInfo(userId);
-        if(cuserPlateVO != null && cuserPlateVO.getVerifiedStatus() != null && cuserPlateVO.getVerifiedStatus() == 1) {
-            return true;
-        }
-        return false;
-    }
+//    private Boolean isCurrentCUserVerified() {
+//        Long userId = getLoginUserId();
+//        CuserPlateVO cuserPlateVO = getCUserPlateInfoList(userId);
+//        if(cuserPlateVO != null && cuserPlateVO.getVerifiedStatus() != null && cuserPlateVO.getVerifiedStatus() == 1) {
+//            return true;
+//        }
+//        return false;
+//    }
 
     /**
      * 获取登录用户的roleId
+     *
      * @return
      */
-    private Integer getRoleId(Long userId) {
-        if(userId == null) {
+    private Integer getRoleId(Long userId){
+        if(userId == null){
             userId = getLoginUserId();
         }
         Set<Long> roleIds = permissionService.getUserRoleIdsFromCache(userId, singleton(CommonStatusEnum.ENABLE.getStatus()));
@@ -444,5 +480,56 @@ public class UserProfileController{
         return roleId;
     }
 
+    @PostMapping("/bindPlateNum") // 解决 uni-app 不支持 Put 上传文件的问题
+    @Operation(summary = "用户绑定车牌")
+    @OperateLog(enable = false) // 避免 Post 请求被记录操作日志
+    public CommonResult<Boolean> bindPlateNum(@RequestBody Map<String, Object> requestBody) throws Exception{
+        Map<String, Object> paramMap = new HashedMap();
+        Long userId = getLoginUserId();
+
+        String plateNum = (String) requestBody.get("plateNum");
+        paramMap.put("plateNum", plateNum);
+        String plateColor = (String) requestBody.get("plateColor");
+        paramMap.put("plateColor", plateColor);
+        String mobile = (String) requestBody.get("mobile");
+        paramMap.put("mobile", mobile);
+        paramMap.put("userId", userId);
+
+        String remoteUrl = parkingInfoEntryServiceUrl + "saveCUserPlate";
+        String result = HttpUtil.post(remoteUrl, paramMap);
+
+        JSONObject jsonObject = JSONUtil.parseObj(result);
+        String result2 = jsonObject.get("data").toString();
+
+        // todo 报错解析
+
+
+        return success(true);
+    }
+
+    @PostMapping("/switchActivePlateNum") // 解决 uni-app 不支持 Put 上传文件的问题
+    @Operation(summary = "切换当前选中的车牌")
+    @OperateLog(enable = false) // 避免 Post 请求被记录操作日志
+    public CommonResult<Boolean> switchActivePlateNum(@RequestBody Map<String, Object> requestBody) throws Exception{
+        Map<String, Object> paramMap = new HashedMap();
+        Long userId = getLoginUserId();
+
+        Integer id = (Integer) requestBody.get("id");
+        paramMap.put("id", id);
+        paramMap.put("userId", userId);
+
+        Assert.notNull(id);
+
+        String remoteUrl = parkingInfoEntryServiceUrl + "switchActivePlateNum";
+        String result = HttpUtil.post(remoteUrl, paramMap);
+
+        JSONObject jsonObject = JSONUtil.parseObj(result);
+        String result2 = jsonObject.get("data").toString();
+
+        // todo 报错解析
+
+
+        return success(true);
+    }
 
 }

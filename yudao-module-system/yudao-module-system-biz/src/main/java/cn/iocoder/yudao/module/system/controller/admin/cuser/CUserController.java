@@ -15,7 +15,6 @@ import cn.iocoder.yudao.module.system.service.user.AdminUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.map.HashedMap;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import java.util.Map;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
@@ -58,10 +56,8 @@ public class CUserController{
     @Operation(summary = "获取车牌对应的停车欠费记录")
     @OperateLog(enable = false) // 避免 Post 请求被记录操作日志
     public CommonResult<PageResult<ListOwerecVo>> getOwerecByPlateNum(@RequestBody GetOwerecsByPlateNumReqVO reqVO) throws Exception{
-        Map<String, Object> paramMap = new HashedMap();
-
-        if(reqVO.getPlateNum() == null) {
-            throw exception(new ErrorCode(1001003009, "必须传入车牌号码"));
+        if(reqVO.getPlateNum() == null || reqVO.getPlateColor() == null) {
+            throw exception(new ErrorCode(1001003009, "必须传入车牌号码和车牌颜色"));
         }
 
         PageResult<ListOwerecVo> pageResult =  parkingPayUnionService.listOwerecForCUser(reqVO);

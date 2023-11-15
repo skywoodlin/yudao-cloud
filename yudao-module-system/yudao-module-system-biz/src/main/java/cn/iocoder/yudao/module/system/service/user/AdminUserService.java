@@ -211,9 +211,9 @@ public interface AdminUserService {
 
 
     /**
-     * 当前车主是否已审核
+     * 当前车牌是否已审核
      * @return
      */
-    Boolean isCurrentCUserVerified();
+    Boolean isCurrentPlateNumVerified(String plateNum, String plateColor);
 
 }

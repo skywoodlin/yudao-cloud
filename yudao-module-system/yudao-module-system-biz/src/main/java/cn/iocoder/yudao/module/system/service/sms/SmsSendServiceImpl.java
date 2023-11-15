@@ -3,9 +3,13 @@ package cn.iocoder.yudao.module.system.service.sms;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import cn.iocoder.yudao.framework.common.core.KeyValue;
 import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
 import cn.iocoder.yudao.framework.common.enums.UserTypeEnum;
+import cn.iocoder.yudao.framework.common.exception.ErrorCode;
 import cn.iocoder.yudao.framework.datapermission.core.annotation.DataPermission;
 import cn.iocoder.yudao.framework.sms.core.client.SmsClient;
 import cn.iocoder.yudao.framework.sms.core.client.SmsClientFactory;
@@ -20,9 +24,13 @@ import cn.iocoder.yudao.module.system.mq.producer.sms.SmsProducer;
 import cn.iocoder.yudao.module.system.service.member.MemberService;
 import cn.iocoder.yudao.module.system.service.user.AdminUserService;
 import com.google.common.annotations.VisibleForTesting;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -36,7 +44,10 @@ import static cn.iocoder.yudao.module.system.enums.ErrorCodeConstants.*;
  * @author 芋道源码
  */
 @Service
-public class SmsSendServiceImpl implements SmsSendService {
+@Slf4j
+public class SmsSendServiceImpl implements SmsSendService{
+
+    private static final String SMS_ENCRYPT_KEY = "wJEP6+6j9Lok5ENp";
 
     @Resource
     private AdminUserService adminUserService;
@@ -55,13 +66,16 @@ public class SmsSendServiceImpl implements SmsSendService {
     @Resource
     private SmsProducer smsProducer;
 
+    @Value("${sms.url_forCUserLogin}")
+    private String urlForCUserLogin;
+
     @Override
     @DataPermission(enable = false) // 发送短信时，无需考虑数据权限
-    public Long sendSingleSmsToAdmin(String mobile, Long userId, String templateCode, Map<String, Object> templateParams) {
+    public Long sendSingleSmsToAdmin(String mobile, Long userId, String templateCode, Map<String, Object> templateParams){
         // 如果 mobile 为空，则加载用户编号对应的手机号
-        if (StrUtil.isEmpty(mobile)) {
+        if(StrUtil.isEmpty(mobile)){
             AdminUserDO user = adminUserService.getUser(userId);
-            if (user != null) {
+            if(user != null){
                 mobile = user.getMobile();
             }
         }
@@ -70,9 +84,9 @@ public class SmsSendServiceImpl implements SmsSendService {
     }
 
     @Override
-    public Long sendSingleSmsToMember(String mobile, Long userId, String templateCode, Map<String, Object> templateParams) {
+    public Long sendSingleSmsToMember(String mobile, Long userId, String templateCode, Map<String, Object> templateParams){
         // 如果 mobile 为空，则加载用户编号对应的手机号
-        if (StrUtil.isEmpty(mobile)) {
+        if(StrUtil.isEmpty(mobile)){
             mobile = memberService.getMemberUserMobile(userId);
         }
         // 执行发送
@@ -80,15 +94,30 @@ public class SmsSendServiceImpl implements SmsSendService {
     }
 
     @Override
-    public void sendUserLoginCodeSms(String mobile, Map<String, Object> templateParams) {
+    public void sendCUserLoginCodeSms(String mobile, String code){
+        log.info("-------------发送短信验证码给手机号： {}, 验证码为: {}", mobile, code);
         mobile = validateMobile(mobile);
-        // todo 这里发送调用雅丽的接口发送短信
-
+        // todo 短信登录正式启用后放开
+//        String timestamp = Long.toString(System.currentTimeMillis());
+//
+//        String concatenatedString = code + "$" + timestamp + SMS_ENCRYPT_KEY;
+//        String sign = DigestUtils.md5DigestAsHex(concatenatedString.getBytes()).toLowerCase();
+//        String remoteUrl = urlForCUserLogin + mobile + "&parameters=" + code + "&timestamp=" + timestamp + "&sign=" + sign;
+//        Map<String, Object> paramMap = new HashMap();
+//        String resultJson = HttpUtil.post(remoteUrl, paramMap);
+//        log.info("-------------发送短信验证码给手机号： {}, : {}", mobile, resultJson);
+//
+//        JSONObject jsonObject = JSONUtil.parseObj(resultJson);
+//        String result = jsonObject.get("status").toString();
+//
+//        if(!result.equals("110000")) {
+//            throw exception(new ErrorCode(1001003007, "短信发送失败，请重试"));
+//        }
     }
 
     @Override
     public Long sendSingleSms(String mobile, Long userId, Integer userType,
-                              String templateCode, Map<String, Object> templateParams) {
+                              String templateCode, Map<String, Object> templateParams){
         // 校验短信模板是否合法
         SmsTemplateDO template = validateSmsTemplate(templateCode);
         // 校验短信渠道是否合法
@@ -107,7 +136,7 @@ public class SmsSendServiceImpl implements SmsSendService {
         Long sendLogId = smsLogService.createSmsLog(mobile, userId, userType, isSend, template, content, templateParams);
 
         // 发送 MQ 消息，异步执行发送短信
-        if (isSend) {
+        if(isSend){
             smsProducer.sendSmsSendMessage(sendLogId, mobile, template.getChannelId(),
                     template.getApiTemplateId(), newTemplateParams);
         }
@@ -117,22 +146,22 @@ public class SmsSendServiceImpl implements SmsSendService {
     }
 
     @VisibleForTesting
-    SmsChannelDO validateSmsChannel(Long channelId) {
+    SmsChannelDO validateSmsChannel(Long channelId){
         // 获得短信模板。考虑到效率，从缓存中获取
         SmsChannelDO channelDO = smsChannelService.getSmsChannel(channelId);
         // 短信模板不存在
-        if (channelDO == null) {
+        if(channelDO == null){
             throw exception(SMS_CHANNEL_NOT_EXISTS);
         }
         return channelDO;
     }
 
     @VisibleForTesting
-    SmsTemplateDO validateSmsTemplate(String templateCode) {
+    SmsTemplateDO validateSmsTemplate(String templateCode){
         // 获得短信模板。考虑到效率，从缓存中获取
         SmsTemplateDO template = smsTemplateService.getSmsTemplateByCodeFromCache(templateCode);
         // 短信模板不存在
-        if (template == null) {
+        if(template == null){
             throw exception(SMS_SEND_TEMPLATE_NOT_EXISTS);
         }
         return template;
@@ -148,10 +177,10 @@ public class SmsSendServiceImpl implements SmsSendService {
      * @return 处理后的参数
      */
     @VisibleForTesting
-    List<KeyValue<String, Object>> buildTemplateParams(SmsTemplateDO template, Map<String, Object> templateParams) {
+    List<KeyValue<String, Object>> buildTemplateParams(SmsTemplateDO template, Map<String, Object> templateParams){
         return template.getParams().stream().map(key -> {
             Object value = templateParams.get(key);
-            if (value == null) {
+            if(value == null){
                 throw exception(SMS_SEND_MOBILE_TEMPLATE_PARAM_MISS, key);
             }
             return new KeyValue<>(key, value);
@@ -159,15 +188,15 @@ public class SmsSendServiceImpl implements SmsSendService {
     }
 
     @VisibleForTesting
-    public String validateMobile(String mobile) {
-        if (StrUtil.isEmpty(mobile)) {
+    public String validateMobile(String mobile){
+        if(StrUtil.isEmpty(mobile)){
             throw exception(SMS_SEND_MOBILE_NOT_EXISTS);
         }
         return mobile;
     }
 
     @Override
-    public void doSendSms(SmsSendMessage message) {
+    public void doSendSms(SmsSendMessage message){
         // 获得渠道对应的 SmsClient 客户端
         SmsClient smsClient = smsClientFactory.getSmsClient(message.getChannelId());
         Assert.notNull(smsClient, "短信客户端({}) 不存在", message.getChannelId());
@@ -180,13 +209,13 @@ public class SmsSendServiceImpl implements SmsSendService {
     }
 
     @Override
-    public void receiveSmsStatus(String channelCode, String text) throws Throwable {
+    public void receiveSmsStatus(String channelCode, String text) throws Throwable{
         // 获得渠道对应的 SmsClient 客户端
         SmsClient smsClient = smsClientFactory.getSmsClient(channelCode);
         Assert.notNull(smsClient, "短信客户端({}) 不存在", channelCode);
         // 解析内容
         List<SmsReceiveRespDTO> receiveResults = smsClient.parseSmsReceiveStatus(text);
-        if (CollUtil.isEmpty(receiveResults)) {
+        if(CollUtil.isEmpty(receiveResults)){
             return;
         }
         // 更新短信日志的接收结果. 因为量一般不大，所以先使用 for 循环更新

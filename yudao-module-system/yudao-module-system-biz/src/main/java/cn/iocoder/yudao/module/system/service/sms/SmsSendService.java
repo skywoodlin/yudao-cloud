@@ -53,7 +53,7 @@ public interface SmsSendService {
     Long sendSingleSms(String mobile, Long userId, Integer userType,
                        String templateCode, Map<String, Object> templateParams);
 
-    void sendUserLoginCodeSms(String mobile, Map<String, Object> templateParams);
+    void sendCUserLoginCodeSms(String mobile, String code);
 
     default void sendBatchSms(List<String> mobiles, List<Long> userIds, Integer userType,
                               String templateCode, Map<String, Object> templateParams) {

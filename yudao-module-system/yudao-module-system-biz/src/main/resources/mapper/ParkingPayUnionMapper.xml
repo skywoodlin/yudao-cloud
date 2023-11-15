@@ -24,8 +24,8 @@
             </if>
         </where>
     </sql>
-    
-    
+
+
     <select id="getDataSourceByAppid" parameterType="java.lang.String"
             resultType="cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.DataSources">
         select *
@@ -33,12 +33,12 @@
         where appid = #{appid}
     </select>
 
-<!--    <select id="getProfitSharingInfo" parameterType="java.util.Map"-->
-<!--            resultType="">-->
-<!--        select *-->
-<!--        from t_profit_sharing_info-->
-<!--        where appid = #{appid}-->
-<!--    </select>-->
+    <!--    <select id="getProfitSharingInfo" parameterType="java.util.Map"-->
+    <!--            resultType="">-->
+    <!--        select *-->
+    <!--        from t_profit_sharing_info-->
+    <!--        where appid = #{appid}-->
+    <!--    </select>-->
 
     <select id="getProfitSharingInfoSum" parameterType="java.util.Map"
             resultType="cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoSumRespVO">
@@ -60,10 +60,46 @@
         where owerec_id = #{owerecId}
     </select>
 
-    <select id="getDataSourceNameById" parameterType="java.lang.Integer"
-            resultType="java.lang.String">
+    <select id="getDataSourceNameById" parameterType="java.lang.Integer" resultType="java.lang.String">
         select name
         from t_data_sources
         where id = #{dataSourceId}
     </select>
+
+
+    <select id="getEviIdListByThirdpartyOrderId" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select id
+        from t_evidence_barn
+        where thirdparty_order_id = #{thirdpartyOrderId}
+    </select>
+
+
+    <select id="selectEvidenceBarnByIds" parameterType="java.util.List"
+            resultType="cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.EvidenceBarn">
+        SELECT * FROM t_evidence_barn
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            ${id}
+        </foreach>
+    </select>
+
+    <update id="updateVerifiedStatus" parameterType="java.util.Map">
+        update t_cuser_plate
+        set verified_status = #{verifiedStatus}, verify_msg = #{verifyMsg}
+        where id = #{id}
+    </update>
+
+    <!--  重新上传后一律置为待认证：0  -->
+    <update id="updateCUserPlateByUserId" parameterType="java.util.Map">
+        update t_cuser_plate
+        set car_license_image_url = #{imgUrl}, verified_status = 0, verify_msg = ''
+        where user_id = #{userId} and plate_num = #{plateNum} and plate_color = #{plateColor}
+    </update>
+
+    <select id="getCUserPlateByCondition" parameterType="java.util.Map"
+            resultType="cn.iocoder.yudao.module.system.controller.admin.user.vo.profile.CuserPlateVO">
+        select * from t_cuser_plate
+        where user_id = #{userId} and plate_num = #{plateNum} and plate_color = #{plateColor}
+    </select>
+
 </mapper>

@@ -49,7 +49,7 @@ public class SmsCodeServiceImpl implements SmsCodeService {
 //        smsSendService.sendSingleSms(reqDTO.getMobile(), null, null,
 //                sceneEnum.getTemplateCode(), MapUtil.of("code", code));
         // 20230927修改
-        smsSendService.sendUserLoginCodeSms(reqDTO.getMobile(), MapUtil.of("code", code));
+        smsSendService.sendCUserLoginCodeSms(reqDTO.getMobile(), code);
     }
 
     private String createSmsCode(String mobile, Integer scene, String ip) {

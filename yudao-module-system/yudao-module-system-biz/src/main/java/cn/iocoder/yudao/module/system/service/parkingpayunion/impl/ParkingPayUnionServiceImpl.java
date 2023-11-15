@@ -10,6 +10,7 @@ import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetPro
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListOwerecReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListOwerecVo;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListProfitSharingInfoVo;
+import cn.iocoder.yudao.module.system.controller.admin.user.vo.profile.CuserPlateVO;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.DataSources;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.EvidenceBarn;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.Owerec;
@@ -21,6 +22,7 @@ import cn.iocoder.yudao.module.system.dal.mysql.parkingpayunion.ParkingPayUnionM
 import cn.iocoder.yudao.module.system.dal.mysql.parkingpayunion.ProfitSharingInfoMapper;
 import cn.iocoder.yudao.module.system.service.parkingpayunion.ParkingPayUnionService;
 import cn.iocoder.yudao.module.system.service.user.AdminUserService;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -103,6 +105,13 @@ public class ParkingPayUnionServiceImpl implements ParkingPayUnionService{
             // 图片url
             List<String> photoUrlList = parkingPayUnionMapper.getPhotoListByOwerecId(listOwerecVo.getId());
             listOwerecVo.setPhotoUrls(photoUrlList);
+
+            // 获取证据
+            if(StringUtils.isNotEmpty(owerec.getThirdpartyOrderId())) {
+                List<Integer> evidenceIdList =  parkingPayUnionMapper.getEviIdListByThirdpartyOrderId(owerec.getThirdpartyOrderId());
+                listOwerecVo.setEvidenceIds(evidenceIdList);
+            }
+
             result.add(listOwerecVo);
         }
 
@@ -116,12 +125,13 @@ public class ParkingPayUnionServiceImpl implements ParkingPayUnionService{
         tempReqVo.setPageNo(reqVO.getPageNo());
         tempReqVo.setPageSize(reqVO.getPageSize());
         tempReqVo.setPlateNum(reqVO.getPlateNum());
+        tempReqVo.setPlateColor(reqVO.getPlateColor());
         PageResult<Owerec> result_temp = owerecMapper.selectPage(tempReqVo);
 
         List<ListOwerecVo> result = new ArrayList<>();
         List<Owerec> owerecList = result_temp.getList();
 
-        Boolean isCurrentUserVerified = userService.isCurrentCUserVerified();
+        Boolean isCurrentPlateNumVerified = userService.isCurrentPlateNumVerified(reqVO.getPlateNum(), reqVO.getPlateColor());
 
         for(Owerec owerec : owerecList){
             ListOwerecVo listOwerecVo = new ListOwerecVo();
@@ -139,17 +149,24 @@ public class ParkingPayUnionServiceImpl implements ParkingPayUnionService{
             // 图片url
             List<String> photoUrlList = parkingPayUnionMapper.getPhotoListByOwerecId(listOwerecVo.getId());
             listOwerecVo.setPhotoUrls(photoUrlList);
+
+            // 获取证据
+            if(StringUtils.isNotEmpty(owerec.getThirdpartyOrderId())) {
+                List<Integer> evidenceIdList =  parkingPayUnionMapper.getEviIdListByThirdpartyOrderId(owerec.getThirdpartyOrderId());
+                listOwerecVo.setEvidenceIds(evidenceIdList);
+            }
+
             result.add(listOwerecVo);
 
             // 没验证的用户只看一条记录
-            if(!isCurrentUserVerified) {
+            if(!isCurrentPlateNumVerified) {
                 break;
             }
         }
 
         Long totalCounts = 0L;
         Long realCounts = result_temp.getTotal();
-        if(isCurrentUserVerified) {
+        if(isCurrentPlateNumVerified) {
             totalCounts = realCounts;
         }else{
             totalCounts = realCounts == 0L ? 0L:1L;
@@ -325,6 +342,47 @@ public class ParkingPayUnionServiceImpl implements ParkingPayUnionService{
         }
 
         return new PageResult<>(result, totalCounts);
+    }
+
+    /**
+     * 更新CUser的认证状态
+     * @param id
+     * @param verifiedStatus
+     */
+    @Override
+    public void updateVerifiedStatus(Integer id, Integer verifiedStatus, String verifyMsg){
+        Map<String, Object> paramMap = new HashMap();
+        paramMap.put("id", id);
+        paramMap.put("verifiedStatus", verifiedStatus);
+        paramMap.put("verifyMsg", verifyMsg);
+        parkingPayUnionMapper.updateVerifiedStatus(paramMap);
+    }
+
+    /**
+     * 根据userId更新CUserPlate表信息
+     * @param userId
+     * @param plateNum
+     * @param plateColor
+     * @param imgUrl
+     */
+    @Override
+    public void updateCUserPlate(Integer userId, String plateNum, String plateColor, String imgUrl){
+        Map<String, Object> paramMap = new HashMap();
+        paramMap.put("userId", userId);
+        paramMap.put("plateNum", plateNum);
+        paramMap.put("plateColor", plateColor);
+        paramMap.put("imgUrl", imgUrl);
+        parkingPayUnionMapper.updateCUserPlateByUserId(paramMap);
+    }
+
+    /**
+     * 判断用户是否上传过此车牌
+     * @return
+     */
+    private Boolean isCUserPlateExist(Map<String, Object> paramMap){
+        CuserPlateVO cuserPlateVO = parkingPayUnionMapper.getCUserPlateByCondition(paramMap);
+
+        return cuserPlateVO != null;
     }
 
 

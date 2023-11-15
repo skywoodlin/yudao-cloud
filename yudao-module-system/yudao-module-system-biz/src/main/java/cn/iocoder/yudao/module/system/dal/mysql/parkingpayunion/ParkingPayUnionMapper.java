@@ -1,8 +1,11 @@
 package cn.iocoder.yudao.module.system.dal.mysql.parkingpayunion;
 
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoSumRespVO;
+import cn.iocoder.yudao.module.system.controller.admin.user.vo.profile.CuserPlateVO;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.DataSources;
+import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.EvidenceBarn;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -38,4 +41,13 @@ public interface ParkingPayUnionMapper {
 
     String getDataSourceNameById(Integer dataSourceId);
 
+    List<Integer> getEviIdListByThirdpartyOrderId(String thirdpartyOrderId);
+
+    List<EvidenceBarn> selectEvidenceBarnByIds(@Param("ids") List<Integer> ids);
+
+    void updateVerifiedStatus(Map<String, Object> paramMap);
+
+    void updateCUserPlateByUserId(Map<String, Object> paramMap);
+
+    CuserPlateVO getCUserPlateByCondition(Map<String, Object> paramMap);
 }

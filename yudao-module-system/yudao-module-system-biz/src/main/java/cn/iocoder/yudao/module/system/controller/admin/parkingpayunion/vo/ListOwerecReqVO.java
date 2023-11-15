@@ -37,6 +37,9 @@ public class ListOwerecReqVO extends PageParam{
     @Schema(description = "车牌号", example = "闽D12345")
     private String plateNum;
 
+    @Schema(description = "车牌颜色", example = "闽D12345")
+    private String plateColor;
+
     @Schema(description = "追缴时间", example = "[2022-07-01 00:00:00,2022-07-01 23:59:59]")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] retrieveTime;

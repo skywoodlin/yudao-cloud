@@ -42,4 +42,14 @@ public class CuserPlateVO{
      * 行驶证照片url
      */
     private String carLicenseImageUrl;
+
+    /**
+     * 是否是当前选中的车牌： 0：否 1：是
+     */
+    private Integer active;
+
+    /**
+     * 审核信息：一般失败时才有用
+     */
+    private String verifyMsg;
 }

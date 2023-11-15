@@ -456,10 +456,14 @@ public class AdminUserServiceImpl implements AdminUserService {
         return passwordEncoder.matches(rawPassword, encodedPassword);
     }
 
+    /**
+     * 当前车牌是否已审核
+     * @return
+     */
     @Override
-    public Boolean isCurrentCUserVerified(){
+    public Boolean isCurrentPlateNumVerified(String plateNum, String plateColor){
         Long userId = getLoginUserId();
-        CuserPlateVO cuserPlateVO = getCUserPlateInfo(userId);
+        CuserPlateVO cuserPlateVO = getCUserPlateByUserIdAndPlateNum(userId, plateNum, plateColor);
         if(cuserPlateVO != null && cuserPlateVO.getVerifiedStatus() != null && cuserPlateVO.getVerifiedStatus() == 1) {
             return true;
         }
@@ -496,15 +500,17 @@ public class AdminUserServiceImpl implements AdminUserService {
         return authentication.getPrincipal() instanceof LoginUser ? (LoginUser) authentication.getPrincipal() : null;
     }
 
-    private CuserPlateVO getCUserPlateInfo(Long userId){
-        Map<String, Object> paramMap = new HashedMap();
+    private CuserPlateVO getCUserPlateByUserIdAndPlateNum(Long userId, String plateNum, String plateColor){
+        Map<String, Object> paramMap = new HashMap();
         paramMap.put("userId", userId);
+        paramMap.put("plateNum", plateNum);
+        paramMap.put("plateColor", plateColor);
         String url = parkingInfoEntryServiceUrl + "getCUserPlateInfo";
         String result = HttpUtil.post(url, paramMap);
 
         JSONObject jsonObject = JSONUtil.parseObj(result);
         String result2 = jsonObject.get("data").toString();
-        if(result2 == "null") {
+        if("null".equals(result2)) {
             return null;
         }
         CuserPlateVO cuserPlateVO = JSONUtil.toBean(result2, CuserPlateVO.class);
