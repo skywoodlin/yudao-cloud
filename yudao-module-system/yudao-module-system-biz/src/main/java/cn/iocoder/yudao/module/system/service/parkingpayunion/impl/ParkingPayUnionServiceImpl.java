@@ -7,22 +7,25 @@ import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetEvi
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoSumReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoSumRespVO;
+import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetWXProfitSharingReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListOwerecReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListOwerecVo;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListProfitSharingInfoVo;
+import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListWXProfitSharingVo;
 import cn.iocoder.yudao.module.system.controller.admin.user.vo.profile.CuserPlateVO;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.DataSources;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.EvidenceBarn;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.Owerec;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.ProfitSharingInfo;
+import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.WxProfitSharing;
 import cn.iocoder.yudao.module.system.dal.mysql.parkingpayunion.DataSourcesMapper;
 import cn.iocoder.yudao.module.system.dal.mysql.parkingpayunion.EvidenceBarnMapper;
 import cn.iocoder.yudao.module.system.dal.mysql.parkingpayunion.OwerecMapper;
 import cn.iocoder.yudao.module.system.dal.mysql.parkingpayunion.ParkingPayUnionMapper;
 import cn.iocoder.yudao.module.system.dal.mysql.parkingpayunion.ProfitSharingInfoMapper;
+import cn.iocoder.yudao.module.system.dal.mysql.parkingpayunion.WxProfitSharingMapper;
 import cn.iocoder.yudao.module.system.service.parkingpayunion.ParkingPayUnionService;
 import cn.iocoder.yudao.module.system.service.user.AdminUserService;
-import io.swagger.v3.oas.models.security.SecurityScheme;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -60,6 +63,10 @@ public class ParkingPayUnionServiceImpl implements ParkingPayUnionService{
 
     @Resource
     private ProfitSharingInfoMapper profitSharingInfoMapper;
+
+
+    @Resource
+    private WxProfitSharingMapper wxProfitSharingMapper;
 
     @Resource
     private EvidenceBarnMapper evidenceBarnMapper;
@@ -278,6 +285,36 @@ public class ParkingPayUnionServiceImpl implements ParkingPayUnionService{
             String sourceName = parkingPayUnionMapper.getDataSourceNameById(listProfitSharingInfoVo.getSourceId());
             listProfitSharingInfoVo.setSourceName(sourceName);
             result.add(listProfitSharingInfoVo);
+        }
+
+        return new PageResult<>(result, totalCounts);
+    }
+
+
+    @Override
+    public PageResult<ListWXProfitSharingVo> getWXProfitSharingPage(GetWXProfitSharingReqVO reqVO){
+        Map<String, Object> paramMap = new HashMap<>();
+        if(reqVO.getOutOrderNo() != null){
+            paramMap.put("outOrderNo", reqVO.getOutOrderNo());
+        }
+        if(StringUtils.isNotEmpty(reqVO.getOrderCode())){
+            paramMap.put("orderCode", reqVO.getOrderCode());
+        }
+
+        PageResult<WxProfitSharing> result_temp = wxProfitSharingMapper.selectPage(reqVO);
+        Long totalCounts = result_temp.getTotal();
+        List<ListWXProfitSharingVo> result = new ArrayList<>();
+
+        List<WxProfitSharing> wxProfitSharings = result_temp.getList();
+        for(WxProfitSharing wxProfitSharing : wxProfitSharings){
+            ListWXProfitSharingVo listWXProfitSharingVo = new ListWXProfitSharingVo();
+            try {
+                BeanUtils.copyProperties(listWXProfitSharingVo, wxProfitSharing);
+            }catch(Exception e) {
+                log.error(e.getMessage());
+                continue;
+            }
+            result.add(listWXProfitSharingVo);
         }
 
         return new PageResult<>(result, totalCounts);

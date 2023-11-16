@@ -8,11 +8,13 @@ import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetEvi
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoSumReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoSumRespVO;
+import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetWXProfitSharingReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ImportOwerecRespVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ImportOwerecVo;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListOwerecReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListOwerecVo;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListProfitSharingInfoVo;
+import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListWXProfitSharingVo;
 import cn.iocoder.yudao.module.system.controller.admin.user.vo.user.UserImportExcelVO;
 import cn.iocoder.yudao.module.system.controller.admin.user.vo.user.UserImportRespVO;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.DataSources;
@@ -72,6 +74,14 @@ public class ParkingPayUnionController{
     @PermitAll
     public CommonResult<PageResult<ListProfitSharingInfoVo>> getProfitSharingInfoPage(GetProfitSharingInfoReqVO reqVO) {
         return success(parkingPayUnionService.getProfitSharingInfoPage(reqVO));
+    }
+
+    @GetMapping("/getWXSplitShare")
+    @Operation(summary = "获取分润明细list Page")
+    // todo 这里本来要设置权限， 先不设
+    @PermitAll
+    public CommonResult<PageResult<ListWXProfitSharingVo>> getProfitSharingInfoPage(GetWXProfitSharingReqVO reqVO) {
+        return success(parkingPayUnionService.getWXProfitSharingPage(reqVO));
     }
 
     @GetMapping("/getDataSources")
