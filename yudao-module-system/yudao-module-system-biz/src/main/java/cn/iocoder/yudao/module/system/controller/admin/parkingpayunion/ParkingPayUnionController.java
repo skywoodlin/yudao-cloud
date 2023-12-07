@@ -8,6 +8,7 @@ import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetEvi
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoSumReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoSumRespVO;
+import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetWXProfitSharingInfoReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetWXProfitSharingReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ImportOwerecRespVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ImportOwerecVo;
@@ -20,6 +21,7 @@ import cn.iocoder.yudao.module.system.controller.admin.user.vo.user.UserImportRe
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.DataSources;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.Owerec;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.ProfitSharingInfo;
+import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.WxProfitSharingInfo;
 import cn.iocoder.yudao.module.system.service.parkingpayunion.ParkingPayUnionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -77,12 +79,19 @@ public class ParkingPayUnionController{
     }
 
     @GetMapping("/getWXSplitShare")
-    @Operation(summary = "获取分润明细list Page")
+    @Operation(summary = "获取微信分账list Page")
     // todo 这里本来要设置权限， 先不设
     @PermitAll
     public CommonResult<PageResult<ListWXProfitSharingVo>> getProfitSharingInfoPage(GetWXProfitSharingReqVO reqVO) {
         return success(parkingPayUnionService.getWXProfitSharingPage(reqVO));
     }
+
+    @GetMapping("/getWxProfitSharingInfo")
+    @Operation(summary = "获取微信分账明细list")
+    // todo 这里本来要设置权限， 先不设
+    @PermitAll
+    public CommonResult<List<WxProfitSharingInfo>> getWxProfitSharingInfo(GetWXProfitSharingInfoReqVO reqVO) {
+        return success(parkingPayUnionService.getWXProfitSharingInfo(reqVO));    }
 
     @GetMapping("/getDataSources")
     @Operation(summary = "获取所有来源方信息", description = "主要用于前端的下拉选项")

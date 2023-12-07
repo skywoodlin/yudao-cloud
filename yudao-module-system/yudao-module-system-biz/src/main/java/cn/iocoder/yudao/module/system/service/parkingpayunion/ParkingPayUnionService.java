@@ -7,12 +7,14 @@ import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetEvi
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoSumReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoSumRespVO;
+import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetWXProfitSharingInfoReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetWXProfitSharingReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListOwerecReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListOwerecVo;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListProfitSharingInfoVo;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListWXProfitSharingVo;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.DataSources;
+import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.WxProfitSharingInfo;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -59,4 +61,10 @@ public interface ParkingPayUnionService{
      */
     void updateCUserPlate(Integer userId, String plateNum, String plateColor, String imgUrl);
 
+    /**
+     * 微信分账明细
+     * @param reqVO
+     * @return
+     */
+    List<WxProfitSharingInfo> getWXProfitSharingInfo(GetWXProfitSharingInfoReqVO reqVO);
 }

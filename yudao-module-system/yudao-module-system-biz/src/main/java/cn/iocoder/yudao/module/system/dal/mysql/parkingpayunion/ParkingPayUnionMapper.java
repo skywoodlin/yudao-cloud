@@ -4,6 +4,7 @@ import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetPro
 import cn.iocoder.yudao.module.system.controller.admin.user.vo.profile.CuserPlateVO;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.DataSources;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.EvidenceBarn;
+import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.WxProfitSharingInfo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -50,4 +51,6 @@ public interface ParkingPayUnionMapper {
     void updateCUserPlateByUserId(Map<String, Object> paramMap);
 
     CuserPlateVO getCUserPlateByCondition(Map<String, Object> paramMap);
+
+    List<WxProfitSharingInfo> getWXProfitSharingInfo(Map<String, Object> paramMap);
 }

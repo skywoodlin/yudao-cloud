@@ -7,6 +7,7 @@ import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetEvi
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoSumReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoSumRespVO;
+import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetWXProfitSharingInfoReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetWXProfitSharingReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListOwerecReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListOwerecVo;
@@ -18,6 +19,7 @@ import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.EvidenceBar
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.Owerec;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.ProfitSharingInfo;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.WxProfitSharing;
+import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.WxProfitSharingInfo;
 import cn.iocoder.yudao.module.system.dal.mysql.parkingpayunion.DataSourcesMapper;
 import cn.iocoder.yudao.module.system.dal.mysql.parkingpayunion.EvidenceBarnMapper;
 import cn.iocoder.yudao.module.system.dal.mysql.parkingpayunion.OwerecMapper;
@@ -410,6 +412,13 @@ public class ParkingPayUnionServiceImpl implements ParkingPayUnionService{
         paramMap.put("plateColor", plateColor);
         paramMap.put("imgUrl", imgUrl);
         parkingPayUnionMapper.updateCUserPlateByUserId(paramMap);
+    }
+
+    @Override
+    public List<WxProfitSharingInfo> getWXProfitSharingInfo(GetWXProfitSharingInfoReqVO reqVO){
+        Map<String, Object> paramMap = new HashMap();
+        paramMap.put("orderCode", reqVO.getOrderCode());
+        return parkingPayUnionMapper.getWXProfitSharingInfo(paramMap);
     }
 
     /**

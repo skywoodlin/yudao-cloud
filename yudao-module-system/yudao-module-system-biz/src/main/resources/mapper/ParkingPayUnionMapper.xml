@@ -102,4 +102,11 @@
         where user_id = #{userId} and plate_num = #{plateNum} and plate_color = #{plateColor}
     </select>
 
+    <select id="getWXProfitSharingInfo" parameterType="java.util.Map"
+            resultType="cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.WxProfitSharingInfo">
+        select * from t_wx_profit_sharing_info
+        where order_code = #{orderCode}
+    </select>
+
+
 </mapper>

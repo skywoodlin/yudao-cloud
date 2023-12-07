@@ -57,11 +57,21 @@ public class WxProfitSharingInfo implements Serializable{
     private String account;
 
     /**
-     * 分账失败原因， 当分账结果result为CLOSED（已关闭）时，返回该字段
-     * 1、ACCOUNT_ABNORMAL：分账接收账户异常 2、NO_RELATION：分账关系已解除 3、RECEIVER_HIGH_RISK：高风险接收方 4、RECEIVER_REAL_NAME_NOT_VERIFIED：接收方未实名
-     * 5、NO_AUTH：分账权限已解除 6、RECEIVER_RECEIPT_LIMIT：接收方已达收款限额 7、PAYER_ACCOUNT_ABNORMAL：分出方账户异常
+     * 1： PENDING待分账  2: SUCCESS分账成功 3: CLOSED已关闭
      */
     private Integer result;
+
+    /**
+     * 分账失败原因， 当分账结果result为CLOSED（已关闭）时，返回该字段
+     * 1、ACCOUNT_ABNORMAL：分账接收账户异常
+     * 2、NO_RELATION：分账关系已解除
+     * 3、RECEIVER_HIGH_RISK：高风险接收方
+     * 4、RECEIVER_REAL_NAME_NOT_VERIFIED：接收方未实名
+     * 5、NO_AUTH：分账权限已解除
+     * 6、RECEIVER_RECEIPT_LIMIT：接收方已达收款限额
+     * 7、PAYER_ACCOUNT_ABNORMAL：分出方账户异常
+     */
+    private String failReason;
 
     /**
      * 创建时间
@@ -142,6 +152,14 @@ public class WxProfitSharingInfo implements Serializable{
         this.result = result;
     }
 
+    public String getFailReason(){
+        return failReason;
+    }
+
+    public void setFailReason(String failReason){
+        this.failReason = failReason;
+    }
+
     public LocalDateTime getCreateTime(){
         return createTime;
     }
@@ -177,6 +195,7 @@ public class WxProfitSharingInfo implements Serializable{
                 ", type=" + type +
                 ", account=" + account +
                 ", result=" + result +
+                ", failReason=" + failReason +
                 ", createTime=" + createTime +
                 ", finishTime=" + finishTime +
                 ", detailId=" + detailId +
