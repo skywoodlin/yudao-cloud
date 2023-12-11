@@ -84,7 +84,8 @@ public class DataSourcesController {
     @PreAuthorize("@ss.hasPermission('system:data-sources:query')")
     public CommonResult<PageResult<DataSourcesRespVO>> getDataSourcesPage(@Valid DataSourcesPageReqVO pageVO) {
         PageResult<DataSourcesDO> pageResult = dataSourcesService.getDataSourcesPage(pageVO);
-        return success(DataSourcesConvert.INSTANCE.convertPage(pageResult));
+        CommonResult<PageResult<DataSourcesRespVO>> result = success(DataSourcesConvert.INSTANCE.convertPage(pageResult));
+        return result;
     }
 
     @GetMapping("/export-excel")

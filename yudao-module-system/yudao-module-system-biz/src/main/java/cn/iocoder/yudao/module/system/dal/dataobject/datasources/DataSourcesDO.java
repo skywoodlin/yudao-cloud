@@ -1,6 +1,8 @@
 package cn.iocoder.yudao.module.system.dal.dataobject.datasources;
 
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.util.*;
 import com.baomidou.mybatisplus.annotation.*;
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
@@ -80,5 +82,15 @@ public class DataSourcesDO extends BaseDO {
      * 删除时间
      */
     private Date deleteTime;
+
+    /**
+     * 每条短信费用
+     */
+    private BigDecimal smsFee;
+
+    /**
+     * 微信商户号
+     */
+    private String mchId;
 
 }

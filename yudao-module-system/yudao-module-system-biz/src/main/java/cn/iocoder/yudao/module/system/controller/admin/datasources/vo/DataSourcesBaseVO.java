@@ -2,6 +2,8 @@ package cn.iocoder.yudao.module.system.controller.admin.datasources.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.util.*;
 import javax.validation.constraints.*;
 
@@ -46,6 +48,9 @@ public class DataSourcesBaseVO {
     @NotNull(message = "状态： 0未启用  1启用  2弃用不能为空")
     private Short status;
 
+    @Schema(description = "每条短信费用")
+    private BigDecimal smsFee;
+
     @Schema(description = "此数据来源使用的支付标识")
     private Integer payMode;
 
@@ -55,5 +60,8 @@ public class DataSourcesBaseVO {
     @Schema(description = "是否删除  0： 否， 1：是", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "是否删除  0： 否， 1：是不能为空")
     private Short delFlag;
+
+    @Schema(description = "微信商户号")
+    private String mchId;
 
 }
