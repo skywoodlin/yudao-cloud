@@ -44,6 +44,14 @@ public class ListOwerecReqVO extends PageParam{
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] retrieveTime;
 
+    @Schema(description = "停车开始时间", example = "[2022-07-01 00:00:00,2022-07-01 23:59:59]")
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime[] startTime;
+
+    @Schema(description = "停车结束时间", example = "[2022-07-01 00:00:00,2022-07-01 23:59:59]")
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime[] closeTime;
+
     /**
      * 是否解密
      */

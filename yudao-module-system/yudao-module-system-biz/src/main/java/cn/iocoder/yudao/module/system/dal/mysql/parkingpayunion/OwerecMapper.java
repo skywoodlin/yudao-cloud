@@ -23,6 +23,8 @@ public interface OwerecMapper extends BaseMapperX<Owerec> {
                 .eqIfNotBlank(Owerec::getThirdpartyOrderId, reqVO.getThirdpartyOrderId())
                 .betweenIfPresent(Owerec::getCreateTime, reqVO.getCreateTime())
                 .betweenIfPresent(Owerec::getRetrieveTime, reqVO.getRetrieveTime())
+                .betweenIfPresent(Owerec::getStartTime, reqVO.getStartTime())
+                .betweenIfPresent(Owerec::getCloseTime, reqVO.getCloseTime())
                 .orderByDesc(Owerec::getId));
     }
 
