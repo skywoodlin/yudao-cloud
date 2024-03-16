@@ -21,6 +21,7 @@ public interface OwerecMapper extends BaseMapperX<Owerec> {
                 .eqIfPresent(Owerec::getPlateColor, reqVO.getPlateColor())
                 .likeIfPresent(Owerec::getPlateNum, reqVO.getPlateNum())
                 .eqIfNotBlank(Owerec::getThirdpartyOrderId, reqVO.getThirdpartyOrderId())
+                .eqIfNotBlank(Owerec::getOrderCode, reqVO.getOrderCode())
                 .betweenIfPresent(Owerec::getCreateTime, reqVO.getCreateTime())
                 .betweenIfPresent(Owerec::getRetrieveTime, reqVO.getRetrieveTime())
                 .betweenIfPresent(Owerec::getStartTime, reqVO.getStartTime())

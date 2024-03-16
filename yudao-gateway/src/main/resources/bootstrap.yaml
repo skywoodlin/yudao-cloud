@@ -1,9 +1,11 @@
 spring:
   application:
-    name: gateway-server
+#    name: gateway-server
+    name: yudao-gateway
 
   profiles:
-    active: local
+#    active: local
+    active: local62
 
 server:
   port: 48080

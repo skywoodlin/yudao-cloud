@@ -3,7 +3,8 @@ spring:
     name: system-server
 
   profiles:
-    active: local
+#    active: local
+    active: local62
 #    active: prod
 
 server:

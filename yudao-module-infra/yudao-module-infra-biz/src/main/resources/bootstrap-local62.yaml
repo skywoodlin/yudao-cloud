@@ -1,0 +1,16 @@
+--- #################### 注册中心相关配置 ####################
+
+spring:
+  cloud:
+    nacos:
+      username: nacos
+      password: nacos
+      discovery:
+        server-addr: 192.168.33.62:9048
+        namespace: dev
+        group: PARKING_PAY
+      config:
+        server-addr: 192.168.33.62:9048
+        file-extension: yml
+        group: PARKING_PAY
+        namespace: dev

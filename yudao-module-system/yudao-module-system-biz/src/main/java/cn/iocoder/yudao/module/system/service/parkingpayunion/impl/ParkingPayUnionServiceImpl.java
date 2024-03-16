@@ -295,12 +295,11 @@ public class ParkingPayUnionServiceImpl implements ParkingPayUnionService{
 
     @Override
     public PageResult<ListWXProfitSharingVo> getWXProfitSharingPage(GetWXProfitSharingReqVO reqVO){
-        Map<String, Object> paramMap = new HashMap<>();
-        if(reqVO.getOutOrderNo() != null){
-            paramMap.put("outOrderNo", reqVO.getOutOrderNo());
+        if(StringUtils.isEmpty(reqVO.getOutOrderNo())){
+            reqVO.setOutOrderNo(null);
         }
-        if(StringUtils.isNotEmpty(reqVO.getOrderCode())){
-            paramMap.put("orderCode", reqVO.getOrderCode());
+        if(StringUtils.isEmpty(reqVO.getOrderCode())){
+            reqVO.setOrderCode(null);
         }
 
         PageResult<WxProfitSharing> result_temp = wxProfitSharingMapper.selectPage(reqVO);
