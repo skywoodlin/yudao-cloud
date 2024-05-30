@@ -166,4 +166,10 @@ public interface ErrorCodeConstants {
 
     // ==============add by skywoodlin =============
     ErrorCode DATA_SOURCES_NOT_EXISTS = new ErrorCode(1002029000, "欠费数据来源公司不存在");
+
+    // ========== 仲裁业务类型 ==========
+    ErrorCode BUSINESS_TYPE_NOT_EXISTS = new ErrorCode(1002030000, "仲裁业务类型不存在");
+
+    // ========== 申请方的信息表 ==========
+    ErrorCode SOURCE_APPLICANT_INFO_NOT_EXISTS = new ErrorCode(1002031000, "申请人的信息表不存在");
 }
