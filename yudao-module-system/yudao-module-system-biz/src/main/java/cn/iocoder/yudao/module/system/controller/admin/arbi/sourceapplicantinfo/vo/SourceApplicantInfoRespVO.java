@@ -158,4 +158,16 @@ public class SourceApplicantInfoRespVO {
     @ExcelProperty("是否已同步到仲裁系统")
     private Integer syncFlag;
 
+    @Schema(description = "案件内容")
+    @ExcelProperty("案件内容")
+    private String caseContent;
+
+    @Schema(description = "违约内容")
+    @ExcelProperty("违约内容")
+    private String illegalContent;
+
+    @Schema(description = "待被申请方履行的义务")
+    @ExcelProperty("待被申请方履行的义务")
+    private String demand;
+
 }

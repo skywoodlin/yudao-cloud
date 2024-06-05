@@ -108,5 +108,15 @@
         where order_code = #{orderCode}
     </select>
 
+    <select id="getSourceApplicantInfoByIds" parameterType="java.util.List"
+            resultType="cn.iocoder.yudao.module.system.dal.dataobject.arbi.sourceapplicantinfo.SourceApplicantInfoDO">
+        SELECT * FROM t_source_applicant_info
+        WHERE id in
+        <foreach collection="applicantIdList" item="id" open="(" separator="," close=")">
+            ${id}
+        </foreach>
+    </select>
+
+
 
 </mapper>

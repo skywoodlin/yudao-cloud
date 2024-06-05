@@ -1,4 +1,4 @@
-package cn.iocoder.yudao.module.system.dal.dataobject.arbi.businesstype;
+package cn.iocoder.yudao.module.system.dal.dataobject.arbi.wordtemplate;
 
 import cn.iocoder.yudao.framework.mybatis.core.dataobject.BaseDO;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -11,18 +11,18 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 /**
- * 仲裁业务类型 DO
+ * 申请人模板配置 DO
  *
  * @author 仲裁管理员
  */
-@TableName("t_business_type")
+@TableName("t_word_template")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class BusinessTypeDO extends BaseDO{
+public class WordTemplateDO extends BaseDO{
 
     /**
      * id
@@ -30,16 +30,24 @@ public class BusinessTypeDO extends BaseDO{
     @TableId
     private Integer id;
     /**
-     * 业务名称
+     * 来源ID
      */
-    private String name;
+    private Integer sourcesId;
     /**
-     * 业务代码
+     * 模版填充内容
      */
-    private String code;
+    private String content;
     /**
-     * 仲裁所需要的文件类型
+     * 文件标题
      */
-    private String arbiNeedFile;
+    private String title;
+    /**
+     * 模版名称
+     */
+    private String templateName;
+    /**
+     * 申请人表ID
+     */
+    private Integer applicantInfoId;
 
 }

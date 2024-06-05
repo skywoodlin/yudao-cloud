@@ -7,7 +7,7 @@ import cn.iocoder.yudao.module.system.annotation.SeaWeedUrlReplacement;
 import cn.iocoder.yudao.module.system.controller.admin.arbi.sourceapplicantinfo.vo.SourceApplicantInfoPageReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.arbi.sourceapplicantinfo.vo.SourceApplicantInfoRespVO;
 import cn.iocoder.yudao.module.system.controller.admin.arbi.sourceapplicantinfo.vo.SourceApplicantInfoSaveReqVO;
-import cn.iocoder.yudao.module.system.controller.admin.arbi.sourceapplicantinfo.vo.SyncToArbiReqVo;
+import cn.iocoder.yudao.module.system.controller.admin.arbi.sourceapplicantinfo.vo.SyncToArbiApplicantReqVo;
 import cn.iocoder.yudao.module.system.controller.admin.arbi.vo.ArbiSystemResponseVo;
 import cn.iocoder.yudao.module.system.dal.dataobject.arbi.sourceapplicantinfo.SourceApplicantInfoDO;
 import cn.iocoder.yudao.module.system.dal.mysql.arbi.sourceapplicantinfo.SourceApplicantInfoMapper;
@@ -31,7 +31,7 @@ import static cn.iocoder.yudao.module.system.enums.ErrorCodeConstants.SOURCE_APP
 @Service
 @Validated
 @Slf4j
-public class SourceApplicantInfoServiceImpl implements SourceApplicantInfoService {
+public class SourceApplicantInfoServiceImpl implements SourceApplicantInfoService{
     @Value("${arbitrationService.syncApplicantInfoUrl}")
     private String syncApplicantInfoUrl;
 
@@ -39,7 +39,7 @@ public class SourceApplicantInfoServiceImpl implements SourceApplicantInfoServic
     private SourceApplicantInfoMapper sourceApplicantInfoMapper;
 
     @Override
-    public Integer createSourceApplicantInfo(SourceApplicantInfoSaveReqVO createReqVO) {
+    public Integer createSourceApplicantInfo(SourceApplicantInfoSaveReqVO createReqVO){
         // 插入
         SourceApplicantInfoDO sourceApplicantInfo = BeanUtils.toBean(createReqVO, SourceApplicantInfoDO.class);
         sourceApplicantInfoMapper.insert(sourceApplicantInfo);
@@ -48,7 +48,7 @@ public class SourceApplicantInfoServiceImpl implements SourceApplicantInfoServic
     }
 
     @Override
-    public void updateSourceApplicantInfo(SourceApplicantInfoSaveReqVO updateReqVO) {
+    public void updateSourceApplicantInfo(SourceApplicantInfoSaveReqVO updateReqVO){
         // 校验存在
         validateSourceApplicantInfoExists(updateReqVO.getId());
         // 更新
@@ -57,48 +57,48 @@ public class SourceApplicantInfoServiceImpl implements SourceApplicantInfoServic
     }
 
     @Override
-    public void deleteSourceApplicantInfo(Integer id) {
+    public void deleteSourceApplicantInfo(Integer id){
         // 校验存在
         validateSourceApplicantInfoExists(id);
         // 删除
         sourceApplicantInfoMapper.deleteById(id);
     }
 
-    private void validateSourceApplicantInfoExists(Integer id) {
-        if (sourceApplicantInfoMapper.selectById(id) == null) {
+    private void validateSourceApplicantInfoExists(Integer id){
+        if(sourceApplicantInfoMapper.selectById(id) == null){
             throw exception(SOURCE_APPLICANT_INFO_NOT_EXISTS);
         }
     }
 
     @Override
-    public SourceApplicantInfoDO getSourceApplicantInfo(Integer id) {
+    public SourceApplicantInfoDO getSourceApplicantInfo(Integer id){
         return sourceApplicantInfoMapper.selectById(id);
     }
 
     @Override
-    public PageResult<SourceApplicantInfoDO> getSourceApplicantInfoPage(SourceApplicantInfoPageReqVO pageReqVO) {
+    public PageResult<SourceApplicantInfoDO> getSourceApplicantInfoPage(SourceApplicantInfoPageReqVO pageReqVO){
         return sourceApplicantInfoMapper.selectPage(pageReqVO);
     }
 
     @Override
     @SeaWeedUrlReplacement
-    public SourceApplicantInfoRespVO covertToSourceApplicantInfoRespVO(SourceApplicantInfoDO sourceApplicantInfo) {
+    public SourceApplicantInfoRespVO covertToSourceApplicantInfoRespVO(SourceApplicantInfoDO sourceApplicantInfo){
         return BeanUtils.toBean(sourceApplicantInfo, SourceApplicantInfoRespVO.class);
     }
 
     @Override
     public void syncToArbi(Integer id) throws Exception{
         SourceApplicantInfoDO sourceApplicantInfoDO = sourceApplicantInfoMapper.selectById(id);
-        if(sourceApplicantInfoDO == null) {
+        if(sourceApplicantInfoDO == null){
             throw new Exception("id错误， 没有此纪录");
         }
 
-        SyncToArbiReqVo reqVo = convertToSyncToArbiReqVo(sourceApplicantInfoDO);
+        SyncToArbiApplicantReqVo reqVo = convertToSyncToArbiReqVo(sourceApplicantInfoDO);
 
         String paramJson = "";
         try{
             paramJson = JSONUtil.toJsonStr(reqVo);
-            System.out.println("同步申请人给仲裁系统， 参数： "+paramJson);
+            System.out.println("同步申请人给仲裁系统， 参数： " + paramJson);
             log.info("同步申请人给仲裁系统， 参数： {}", paramJson);
         }catch(Exception e){
             e.printStackTrace();
@@ -107,11 +107,11 @@ public class SourceApplicantInfoServiceImpl implements SourceApplicantInfoServic
 
         String result = HttpUtil.post(syncApplicantInfoUrl, paramJson);
         log.info("同步申请人给仲裁系统， 返回： {}", result);
-        System.out.println("同步申请人给仲裁系统， 返回： "+result);
+//        System.out.println("同步申请人给仲裁系统， 返回： " + result);
 
         ArbiSystemResponseVo responseVo = JSONUtil.toBean(result, ArbiSystemResponseVo.class);
 
-        if(responseVo.getCode() != 0) {
+        if(responseVo.getCode() != 0){
             throw new Exception(responseVo.getMsg());
         }
 
@@ -120,8 +120,8 @@ public class SourceApplicantInfoServiceImpl implements SourceApplicantInfoServic
 
     }
 
-    private SyncToArbiReqVo convertToSyncToArbiReqVo(SourceApplicantInfoDO sourceApplicantInfoDO){
-        SyncToArbiReqVo reqVo = new SyncToArbiReqVo();
+    private SyncToArbiApplicantReqVo convertToSyncToArbiReqVo(SourceApplicantInfoDO sourceApplicantInfoDO){
+        SyncToArbiApplicantReqVo reqVo = new SyncToArbiApplicantReqVo();
         reqVo.setParkingpaySystemId(sourceApplicantInfoDO.getId());
         reqVo.setName(sourceApplicantInfoDO.getApplicant());
         reqVo.setSex(sourceApplicantInfoDO.getSex());
@@ -136,6 +136,9 @@ public class SourceApplicantInfoServiceImpl implements SourceApplicantInfoServic
         reqVo.setLawyerLicenseUrl(sourceApplicantInfoDO.getLawyerLicenseUrl());
         reqVo.setAddress(sourceApplicantInfoDO.getAddress());
         reqVo.setPhone(sourceApplicantInfoDO.getPhone());
-        return  reqVo;
+        reqVo.setCaseContent(sourceApplicantInfoDO.getCaseContent());
+        reqVo.setIllegalContent(sourceApplicantInfoDO.getIllegalContent());
+        reqVo.setDemand(sourceApplicantInfoDO.getDemand());
+        return reqVo;
     }
 }

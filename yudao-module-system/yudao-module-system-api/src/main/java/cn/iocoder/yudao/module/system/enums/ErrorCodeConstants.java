@@ -172,4 +172,8 @@ public interface ErrorCodeConstants {
 
     // ========== 申请方的信息表 ==========
     ErrorCode SOURCE_APPLICANT_INFO_NOT_EXISTS = new ErrorCode(1002031000, "申请人的信息表不存在");
+
+    ErrorCode CASE_NOT_EXISTS = new ErrorCode(1002032000, "案件不存在");
+
+    ErrorCode WORD_TEMPLATE_NOT_EXISTS = new ErrorCode(1002033000, "申请人模板配置不存在");
 }

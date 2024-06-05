@@ -10,7 +10,7 @@ import lombok.Data;
  * @date 2024/5/29
  */
 @Data
-public class SyncToArbiReqVo{
+public class SyncToArbiApplicantReqVo{
     /**
      * 追缴中台系统对应的id
      */

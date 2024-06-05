@@ -140,4 +140,19 @@ public class SourceApplicantInfoDO extends BaseDO{
      * 是否已同步到仲裁系统 0：否，  1：是
      */
     private Integer syncFlag;
+
+    /**
+     * 案件内容
+     */
+    private String caseContent;
+
+    /**
+     * 违约内容
+     */
+    private String illegalContent;
+
+    /**
+     * 待被申请方履行的义务
+     */
+    private String demand;
 }

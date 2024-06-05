@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.system.dal.mysql.parkingpayunion;
 
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoSumRespVO;
 import cn.iocoder.yudao.module.system.controller.admin.user.vo.profile.CuserPlateVO;
+import cn.iocoder.yudao.module.system.dal.dataobject.arbi.sourceapplicantinfo.SourceApplicantInfoDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.DataSources;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.EvidenceBarn;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.WxProfitSharingInfo;
@@ -53,4 +54,6 @@ public interface ParkingPayUnionMapper {
     CuserPlateVO getCUserPlateByCondition(Map<String, Object> paramMap);
 
     List<WxProfitSharingInfo> getWXProfitSharingInfo(Map<String, Object> paramMap);
+
+    List<SourceApplicantInfoDO> getSourceApplicantInfoByIds(Map<String, Object> paramMap);
 }

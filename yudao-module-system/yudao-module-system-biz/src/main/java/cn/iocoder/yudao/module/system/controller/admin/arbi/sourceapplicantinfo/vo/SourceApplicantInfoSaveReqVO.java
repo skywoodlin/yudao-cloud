@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 /**
@@ -40,7 +39,7 @@ public class SourceApplicantInfoSaveReqVO {
     private String signUrl;
 
     @Schema(description = "word模版Id", requiredMode = Schema.RequiredMode.REQUIRED, example = "28278")
-    @NotNull(message = "word模版Id不能为空")
+//    @NotNull(message = "word模版Id不能为空")
     private Integer wordTemplateId;
 
     @Schema(description = "公众号名称")
@@ -105,4 +104,13 @@ public class SourceApplicantInfoSaveReqVO {
 
     @Schema(description = "是否已同步到仲裁系统 0：否，  1：是")
     private Integer syncFlag;
+
+    @Schema(description = "案件内容")
+    private String caseContent;
+
+    @Schema(description = "违约内容")
+    private String illegalContent;
+
+    @Schema(description = "待被申请方履行的义务")
+    private String demand;
 }

@@ -6,7 +6,6 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
 import cn.iocoder.yudao.framework.operatelog.core.annotations.OperateLog;
-import cn.iocoder.yudao.module.system.annotation.SeaWeedUrlReplacement;
 import cn.iocoder.yudao.module.system.controller.admin.arbi.businesstype.vo.BusinessTypeOptionsVo;
 import cn.iocoder.yudao.module.system.controller.admin.arbi.sourceapplicantinfo.vo.SourceApplicantInfoPageReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.arbi.sourceapplicantinfo.vo.SourceApplicantInfoRespVO;
@@ -18,7 +17,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.SneakyThrows;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -124,14 +122,8 @@ public class SourceApplicantInfoController {
     @Operation(summary = "同步申请人记录到仲裁系统")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
     @SneakyThrows
-//    @PreAuthorize("@ss.hasPermission('system:source-applicant-info:update')")
     public CommonResult<Boolean> syncToArbi(@RequestParam("id") Integer id) {
-//        sourceApplicantInfoService.updateSourceApplicantInfo(updateReqVO);
         sourceApplicantInfoService.syncToArbi(id);
         return success(true);
     }
-
-
-
-
 }
