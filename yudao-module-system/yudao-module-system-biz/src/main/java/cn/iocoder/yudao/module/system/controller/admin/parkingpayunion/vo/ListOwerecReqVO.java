@@ -43,6 +43,9 @@ public class ListOwerecReqVO extends PageParam{
     @Schema(description = "追缴订单号", example = "01012002341234")
     private String orderCode;
 
+    @Schema(description = "追缴渠道", example = "1")
+    private Integer channelId;
+
     @Schema(description = "追缴时间", example = "[2022-07-01 00:00:00,2022-07-01 23:59:59]")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] retrieveTime;

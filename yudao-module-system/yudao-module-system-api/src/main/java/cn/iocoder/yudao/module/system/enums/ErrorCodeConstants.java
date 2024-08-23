@@ -176,4 +176,7 @@ public interface ErrorCodeConstants {
     ErrorCode CASE_NOT_EXISTS = new ErrorCode(1002032000, "案件不存在");
 
     ErrorCode WORD_TEMPLATE_NOT_EXISTS = new ErrorCode(1002033000, "申请人模板配置不存在");
+
+    // ========== 渠道 TODO 补充编号 ==========
+    ErrorCode CHANNEL_NOT_EXISTS = new ErrorCode(1002034000, "渠道不存在");
 }

@@ -57,8 +57,8 @@ public class DataSourcesBaseVO {
     @Schema(description = "备注")
     private String remark;
 
-    @Schema(description = "是否删除  0： 否， 1：是", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "是否删除  0： 否， 1：是不能为空")
+    @Schema(description = "是否删除  0： 否， 1：是")
+//    @NotNull(message = "是否删除  0： 否， 1：是不能为空")
     private Short delFlag;
 
     @Schema(description = "微信商户号")
