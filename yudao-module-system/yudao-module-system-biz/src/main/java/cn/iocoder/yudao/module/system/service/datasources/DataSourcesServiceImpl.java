@@ -8,9 +8,11 @@ import cn.iocoder.yudao.module.system.controller.admin.datasources.vo.DataSource
 import cn.iocoder.yudao.module.system.convert.datasources.DataSourcesConvert;
 import cn.iocoder.yudao.module.system.dal.dataobject.datasources.DataSourcesDO;
 import cn.iocoder.yudao.module.system.dal.mysql.datasources.DataSourcesMappers;
+import cn.iocoder.yudao.module.system.util.redis.RedisUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.Collection;
 import java.util.List;
@@ -26,9 +28,24 @@ import static cn.iocoder.yudao.module.system.enums.ErrorCodeConstants.DATA_SOURC
 @Service
 @Validated
 public class DataSourcesServiceImpl implements DataSourcesService {
+    private static final int GLOBAL_CACHE_TIME = 60 * 5;
 
     @Resource
     private DataSourcesMappers dataSourcesMappers;
+
+    @Resource
+    private RedisUtil redisUtil;
+
+    @PostConstruct
+    public void init(){
+        List<DataSourcesDO> dataSourcesList = dataSourcesMappers.selectList();
+        for(DataSourcesDO dataSources : dataSourcesList){
+            setDataSourcesInfoToRedis(dataSources);
+        }
+
+//        System.out.println(redisUtil.getEntityByKey("dataSources:id:1", DataSources.class));
+    }
+
 
     @Override
     public Integer createDataSources(DataSourcesCreateReqVO createReqVO) {
@@ -80,6 +97,28 @@ public class DataSourcesServiceImpl implements DataSourcesService {
     @Override
     public List<DataSourcesDO> getDataSourcesList(DataSourcesExportReqVO exportReqVO) {
         return dataSourcesMappers.selectList(exportReqVO);
+    }
+
+    @Override
+    public void setDataSourcesInfoToRedis(DataSourcesDO dataSources){
+        redisUtil.setEntityByKeyWithTTL("dataSources2:id:" + dataSources.getId(), dataSources, GLOBAL_CACHE_TIME);
+    }
+
+    @Override
+    public DataSourcesDO getDataSourcesById(Integer id){
+        DataSourcesDO dataSources = redisUtil.getEntityByKey("dataSources2:id:" + id, DataSourcesDO.class);
+        if( dataSources!= null) {
+            return dataSources;
+        }
+
+        init();
+
+        return redisUtil.getEntityByKey("dataSources2:id:" + id, DataSourcesDO.class);
+    }
+
+    @Override
+    public boolean removeDataSourcesInRedis(Integer id){
+        return redisUtil.delete("dataSources2:id:" + id);
     }
 
 }

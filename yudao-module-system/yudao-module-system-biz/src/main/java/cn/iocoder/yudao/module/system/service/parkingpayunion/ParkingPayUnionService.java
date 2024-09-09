@@ -9,6 +9,7 @@ import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetPro
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoSumRespVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetWXProfitSharingInfoReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetWXProfitSharingReqVO;
+import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListOwerecForChannelReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListOwerecReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListOwerecVo;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListProfitSharingInfoVo;
@@ -67,4 +68,12 @@ public interface ParkingPayUnionService{
      * @return
      */
     List<WxProfitSharingInfo> getWXProfitSharingInfo(GetWXProfitSharingInfoReqVO reqVO);
+
+    /**
+     * 欠费订单退款 - 根据欠费订单id退款
+     *
+     * @param owerecId
+     * @return 退款结果， 如果返回值为空， 说明退款成功， 否则返回错误信息
+     */
+    String owerecRefund(Integer owerecId);
 }

@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,7 @@ import java.io.Serializable;
  * @since 2023-06-26
  */
 @TableName("t_data_sources")
+@Data
 @EqualsAndHashCode
 public class DataSources implements Serializable{
 
@@ -29,7 +31,7 @@ public class DataSources implements Serializable{
     /**
      * 系统分配账户
      */
-    private Integer appid;
+    private String appid;
 
     /**
      * 系统分配密钥
@@ -101,153 +103,35 @@ public class DataSources implements Serializable{
      */
     private LocalDateTime updateTime;
 
-    public Integer getId(){
-        return id;
-    }
+    /**
+     * 通知来源方的bean名
+     */
+    private String notifySourceBeanName;
 
-    public void setId(Integer id){
-        this.id = id;
-    }
+    /**
+     *停车图片来源类型： 1： 从业务系统获取  2：本地t_parking_photo表获取
+     */
+    private Integer parkingPhotoSourceType ;
 
-    public Integer getAppid(){
-        return appid;
-    }
+    /**
+     *业务系统获取停车图片url-当parking_photo_source_type为1时生效
+     */
+    private String getParkingPhotoUrl;
 
-    public void setAppid(Integer appid){
-        this.appid = appid;
-    }
 
-    public String getSecret(){
-        return secret;
-    }
 
-    public void setSecret(String secret){
-        this.secret = secret;
-    }
+    /**
+     * 从业务系统批量获取停车图片url
+     */
+    private String batchGetParkingPhotoUrl;
 
-    public String getName(){
-        return name;
-    }
+    /**
+     * 退款通知url
+     */
+    private String refundUrl;
 
-    public void setName(String name){
-        this.name = name;
-    }
-
-    public String getChannels(){
-        return channels;
-    }
-
-    public void setChannels(String channels){
-        this.channels = channels;
-    }
-
-    public String getAddress(){
-        return address;
-    }
-
-    public void setAddress(String address){
-        this.address = address;
-    }
-
-    public String getPhone(){
-        return phone;
-    }
-
-    public void setPhone(String phone){
-        this.phone = phone;
-    }
-
-    public String getPayResultUrl(){
-        return payResultUrl;
-    }
-
-    public void setPayResultUrl(String payResultUrl){
-        this.payResultUrl = payResultUrl;
-    }
-
-    public Integer getProfitSharingId(){
-        return profitSharingId;
-    }
-
-    public void setProfitSharingId(Integer profitSharingId){
-        this.profitSharingId = profitSharingId;
-    }
-
-    public Integer getStatus(){
-        return status;
-    }
-
-    public void setStatus(Integer status){
-        this.status = status;
-    }
-
-    public Integer getPayMode(){
-        return payMode;
-    }
-
-    public void setPayMode(Integer payMode){
-        this.payMode = payMode;
-    }
-
-    public String getRemark(){
-        return remark;
-    }
-
-    public void setRemark(String remark){
-        this.remark = remark;
-    }
-
-    public Integer getDelFlag(){
-        return delFlag;
-    }
-
-    public void setDelFlag(Integer delFlag){
-        this.delFlag = delFlag;
-    }
-
-    public LocalDateTime getDeleteTime(){
-        return deleteTime;
-    }
-
-    public void setDeleteTime(LocalDateTime deleteTime){
-        this.deleteTime = deleteTime;
-    }
-
-    public LocalDateTime getCreateTime(){
-        return createTime;
-    }
-
-    public void setCreateTime(LocalDateTime createTime){
-        this.createTime = createTime;
-    }
-
-    public LocalDateTime getUpdateTime(){
-        return updateTime;
-    }
-
-    public void setUpdateTime(LocalDateTime updateTime){
-        this.updateTime = updateTime;
-    }
-
-    @Override
-    public String toString(){
-        return "DataSources{" +
-                "id=" + id +
-                ", appid=" + appid +
-                ", secret=" + secret +
-                ", name=" + name +
-                ", channels=" + channels +
-                ", address=" + address +
-                ", phone=" + phone +
-                ", payResultUrl=" + payResultUrl +
-                ", profitSharingId=" + profitSharingId +
-                ", status=" + status +
-                ", payMode=" + payMode +
-                ", remark=" + remark +
-                ", delFlag=" + delFlag +
-                ", deleteTime=" + deleteTime +
-                ", createTime=" + createTime +
-                ", updateTime=" + updateTime +
-                "}";
-    }
+    /**
+     * 来源方是否提供了退款接口： 0. 未提供 1. 提供， 默认1
+     */
+    private Integer hasRefundApi;
 }

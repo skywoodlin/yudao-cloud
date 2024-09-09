@@ -4,9 +4,10 @@ import cn.iocoder.yudao.framework.common.pojo.PageParam;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
-import org.springframework.format.annotation.DateTimeFormat;
+
 import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
 
 
@@ -20,19 +21,9 @@ import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_
 @Schema(description = "管理后台 - 追缴中台获取欠费信息 Request VO")
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class ListOwerecReqVO extends PageParam{
+public class ListOwerecForChannelReqVO extends PageParam{
     @Schema(description = "展示订单状态", example = "1")
     private Integer status;
-
-    @Schema(description = "开始时间", example = "[2022-07-01 00:00:00,2022-07-01 23:59:59]")
-    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private LocalDateTime[] createTime;
-
-    @Schema(description = "来源方ID", example = "1")
-    private Integer sourceId;
-
-    @Schema(description = "第三方订单号", example = "11234")
-    private String thirdpartyOrderId;
 
     @Schema(description = "车牌号", example = "闽D12345")
     private String plateNum;
@@ -43,16 +34,16 @@ public class ListOwerecReqVO extends PageParam{
     @Schema(description = "追缴订单号", example = "01012002341234")
     private String orderCode;
 
-    @Schema(description = "追缴渠道", example = "1")
+    @Schema(description = "渠道Id", example = "1")
     private Integer channelId;
 
     @Schema(description = "追缴时间", example = "[2022-07-01 00:00:00,2022-07-01 23:59:59]")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] retrieveTime;
 
-    @Schema(description = "停车开始时间", example = "[2022-07-01 00:00:00,2022-07-01 23:59:59]")
-    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private LocalDateTime[] startTime;
+//    @Schema(description = "停车开始时间", example = "[2022-07-01 00:00:00,2022-07-01 23:59:59]")
+//    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+//    private LocalDateTime[] startTime;
 
     @Schema(description = "停车结束时间", example = "[2022-07-01 00:00:00,2022-07-01 23:59:59]")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)

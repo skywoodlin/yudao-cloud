@@ -1,6 +1,9 @@
 package cn.iocoder.yudao.module.system.service.parkingpayunion.impl;
 
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
+import cn.iocoder.yudao.module.system.controller.admin.common.vo.ParkingPayServiceRespVo;
 import cn.iocoder.yudao.module.system.controller.admin.cuser.vo.GetOwerecsByPlateNumReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetEvidenceBySourceIdReqVo;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetEvidenceBySourceIdRespVo;
@@ -9,11 +12,13 @@ import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetPro
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoSumRespVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetWXProfitSharingInfoReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetWXProfitSharingReqVO;
+import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListOwerecForChannelReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListOwerecReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListOwerecVo;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListProfitSharingInfoVo;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListWXProfitSharingVo;
 import cn.iocoder.yudao.module.system.controller.admin.user.vo.profile.CuserPlateVO;
+import cn.iocoder.yudao.module.system.dal.dataobject.datasources.DataSourcesDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.DataSources;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.EvidenceBarn;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.Owerec;
@@ -26,12 +31,16 @@ import cn.iocoder.yudao.module.system.dal.mysql.parkingpayunion.OwerecMapper;
 import cn.iocoder.yudao.module.system.dal.mysql.parkingpayunion.ParkingPayUnionMapper;
 import cn.iocoder.yudao.module.system.dal.mysql.parkingpayunion.ProfitSharingInfoMapper;
 import cn.iocoder.yudao.module.system.dal.mysql.parkingpayunion.WxProfitSharingMapper;
+import cn.iocoder.yudao.module.system.service.datasources.DataSourcesService;
 import cn.iocoder.yudao.module.system.service.parkingpayunion.ParkingPayUnionService;
 import cn.iocoder.yudao.module.system.service.user.AdminUserService;
+import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import cn.hutool.http.HttpUtil;
 
 import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;
@@ -53,6 +62,11 @@ import static cn.iocoder.yudao.module.system.util.encrypt.PuzekAESUtil.decrypt;
 @Service
 @Slf4j
 public class ParkingPayUnionServiceImpl implements ParkingPayUnionService{
+    @Value("${parkingPayService.url}")
+    private String parkingPayServiceUrl;
+
+    @Value("${parkingInfoEntryService.url}")
+    private String parkingInfoEntryServiceeUrl;
 
     @Resource
     private ParkingPayUnionMapper parkingPayUnionMapper;
@@ -75,6 +89,9 @@ public class ParkingPayUnionServiceImpl implements ParkingPayUnionService{
 
     @Resource
     private AdminUserService userService;
+
+    @Resource
+    private DataSourcesService dataSourcesService;
 
 
 
@@ -108,12 +125,14 @@ public class ParkingPayUnionServiceImpl implements ParkingPayUnionService{
 
             // todo 考虑缓存到redis中
             // 获取来源方名称
-            String sourceName = parkingPayUnionMapper.getDataSourceNameById(listOwerecVo.getSourceId());
+            DataSourcesDO dataSources = dataSourcesService.getDataSourcesById(listOwerecVo.getSourceId());
+            String sourceName = dataSources.getName();
+//            String sourceName = parkingPayUnionMapper.getDataSourceNameById(listOwerecVo.getSourceId());
             listOwerecVo.setSourceName(sourceName);
 
-            // 图片url
-            List<String> photoUrlList = parkingPayUnionMapper.getPhotoListByOwerecId(listOwerecVo.getId());
-            listOwerecVo.setPhotoUrls(photoUrlList);
+            // 图片url 2024.09.07 修改点击时再获取
+//            List<String> photoUrlList = getPhotoListByOwerecIdFromParkingInfoEntryService(listOwerecVo.getId());
+//            listOwerecVo.setPhotoUrls(photoUrlList);
 
             // 获取证据
             if(StringUtils.isNotEmpty(owerec.getThirdpartyOrderId())) {
@@ -125,6 +144,18 @@ public class ParkingPayUnionServiceImpl implements ParkingPayUnionService{
         }
 
         return new PageResult<>(result, totalCounts);
+    }
+
+    private List<String> getPhotoListByOwerecIdFromParkingInfoEntryService(Integer owerecId) {
+        String url = parkingInfoEntryServiceeUrl + "getPhotoListByOwerecId_new";
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("owerecId", owerecId);
+        String result = HttpUtil.post(url, paramMap);
+        JSONObject jsonObject = JSONUtil.parseObj(result);
+        if(jsonObject.getInt("status") != 100){
+            return new ArrayList<>();
+        }
+        return JSONUtil.toList(jsonObject.getJSONArray("data"), String.class);
     }
 
     @Override
@@ -418,6 +449,20 @@ public class ParkingPayUnionServiceImpl implements ParkingPayUnionService{
         Map<String, Object> paramMap = new HashMap();
         paramMap.put("orderCode", reqVO.getOrderCode());
         return parkingPayUnionMapper.getWXProfitSharingInfo(paramMap);
+    }
+
+    @Override
+    public String owerecRefund(Integer owerecId){
+        String refundUrl = parkingPayServiceUrl + "WeChatController/wechatAppletRefund";
+        // 把params转换为json字符串
+        String paramJson = "{\"owerecId\":" + owerecId + "}";
+        String result = HttpUtil.post(refundUrl, paramJson);
+        // result格式： {"status":100,"message":"操作成功","data":null,"timestamp":1724607315911}
+        ParkingPayServiceRespVo parkingPayServiceRespVo = JSONUtil.toBean(result, ParkingPayServiceRespVo.class);
+        if(parkingPayServiceRespVo.getStatus() != 100){
+            return parkingPayServiceRespVo.getMessage();
+        }
+        return null;
     }
 
     /**

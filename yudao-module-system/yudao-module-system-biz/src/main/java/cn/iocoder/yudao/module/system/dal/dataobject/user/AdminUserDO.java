@@ -93,10 +93,24 @@ public class AdminUserDO extends TenantBaseDO {
      */
     private LocalDateTime loginDate;
 
+    /**
+     * 用户的appid(来源方或渠道方)
+     */
     private Integer appid;
 
+    /**
+     * 用户的secret(来源方或渠道方)
+     */
     private String secret;
 
+    /**
+     * 用户的sourceId(与渠道方互斥)
+     */
     private Integer sourceId;
+
+    /**
+     * 用户的sourceId(与来源方互斥)
+     */
+    private Integer channelId;
 
 }

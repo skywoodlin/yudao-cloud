@@ -50,6 +50,9 @@ public class AuthPermissionInfoRespVO {
         @Schema(description = "sourceId", required = false, example = "1111")
         private Integer sourceId;
 
+        @Schema(description = "channelId", required = false, example = "1111")
+        private Integer channelId;
+
     }
 
 }

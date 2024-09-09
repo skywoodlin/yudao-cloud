@@ -10,23 +10,18 @@ import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetPro
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoSumRespVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetWXProfitSharingInfoReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetWXProfitSharingReqVO;
-import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ImportOwerecRespVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ImportOwerecVo;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListOwerecReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListOwerecVo;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListProfitSharingInfoVo;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListWXProfitSharingVo;
-import cn.iocoder.yudao.module.system.controller.admin.user.vo.user.UserImportExcelVO;
-import cn.iocoder.yudao.module.system.controller.admin.user.vo.user.UserImportRespVO;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.DataSources;
-import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.Owerec;
-import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.ProfitSharingInfo;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.WxProfitSharingInfo;
 import cn.iocoder.yudao.module.system.service.parkingpayunion.ParkingPayUnionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,6 +36,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Comparator;
 import java.util.List;
 
+import static cn.iocoder.yudao.framework.common.pojo.CommonResult.error;
 import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 
 /**
@@ -129,6 +125,26 @@ public class ParkingPayUnionController{
     @PermitAll
     public CommonResult<PageResult<GetEvidenceBySourceIdRespVo>> getEvidenceBySourceId(GetEvidenceBySourceIdReqVo reqVO) {
         return success(parkingPayUnionService.getEvidenceBySourceId(reqVO));
+    }
+
+    @PostMapping("/owerecRefund")
+    @Operation(summary = "退款接口")
+    // todo 这里本来要设置权限， 先不设
+    @PermitAll
+    public CommonResult<String> owerecRefund(Integer owerecId) {
+        if(owerecId == null) {
+            return error(400, "owerecId不能为空"); // 参数不正确
+        }
+        String result = null;
+        try{
+            result = parkingPayUnionService.owerecRefund(owerecId);
+        }catch(Exception e) {
+            return error(500, e.getMessage()); //
+        }
+        if(StringUtils.hasLength(result)) {
+            return error(500, result);
+        }
+        return success("success");
     }
 
 

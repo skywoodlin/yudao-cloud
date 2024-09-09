@@ -1,10 +1,13 @@
 package cn.iocoder.yudao.module.system.dal.mysql.parkingpayunion;
 
+import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.GetProfitSharingInfoSumRespVO;
+import cn.iocoder.yudao.module.system.controller.admin.parkingpayunion.vo.ListOwerecForChannelReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.user.vo.profile.CuserPlateVO;
 import cn.iocoder.yudao.module.system.dal.dataobject.arbi.sourceapplicantinfo.SourceApplicantInfoDO;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.DataSources;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.EvidenceBarn;
+import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.Owerec;
 import cn.iocoder.yudao.module.system.dal.dataobject.parkingpayunion.WxProfitSharingInfo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;

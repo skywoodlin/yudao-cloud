@@ -28,7 +28,7 @@ public interface AuthConvert {
     default AuthPermissionInfoRespVO convert(AdminUserDO user, List<RoleDO> roleList, List<MenuDO> menuList) {
         return AuthPermissionInfoRespVO.builder()
             .user(AuthPermissionInfoRespVO.UserVO.builder().id(user.getId()).nickname(user.getNickname()).avatar(user.getAvatar())
-                    .appid(user.getAppid()).secret(user.getSecret()).build().setSourceId(user.getSourceId()))
+                    .appid(user.getAppid()).secret(user.getSecret()).build().setSourceId(user.getSourceId()).setChannelId(user.getChannelId()))
             .roles(convertSet(roleList, RoleDO::getCode))
             .permissions(convertSet(menuList, MenuDO::getPermission))
             .build();

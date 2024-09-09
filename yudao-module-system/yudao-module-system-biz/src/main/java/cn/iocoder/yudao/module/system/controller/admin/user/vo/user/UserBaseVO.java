@@ -60,4 +60,7 @@ public class UserBaseVO {
     @Schema(description = "sourceId", example = "111111")
     private Integer sourceId;
 
+    @Schema(description = "channelId", example = "111111")
+    private Integer channelId;
+
 }

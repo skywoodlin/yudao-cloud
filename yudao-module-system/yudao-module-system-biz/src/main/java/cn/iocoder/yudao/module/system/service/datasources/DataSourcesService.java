@@ -67,4 +67,10 @@ public interface DataSourcesService {
      */
     List<DataSourcesDO> getDataSourcesList(DataSourcesExportReqVO exportReqVO);
 
+    void setDataSourcesInfoToRedis(DataSourcesDO dataSources);
+
+    DataSourcesDO getDataSourcesById(Integer id);
+
+    boolean removeDataSourcesInRedis(Integer id);
+
 }
